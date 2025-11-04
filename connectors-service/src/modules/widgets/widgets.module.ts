@@ -4,6 +4,6 @@ import { WidgetsController } from './widgets.controller';
 
 @Module({
   providers: [WidgetsService],
-  controllers: [WidgetsController]
+  controllers: [WidgetsController],
 })
 export class WidgetsModule {}
