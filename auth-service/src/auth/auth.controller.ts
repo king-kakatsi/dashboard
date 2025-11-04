@@ -31,7 +31,7 @@ export class AuthController {
   @UseInterceptors(FileInterceptor('profile'))
   async register(
     @Body() data: RegisterDto,
-    @UploadedFile() file: Express.Multer.File, // This will work with @types/multer installed
+    @UploadedFile() file: Express.Multer.File,
     @Res() res: Response,
   ) {
     try {
@@ -51,7 +51,7 @@ export class AuthController {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
-        maxAge: 7 * 24 * 60 * 60 * 1000,
+        maxAge: 24 * 60 * 60 * 1000,
       });
 
       return res.status(201).json(result);
@@ -71,7 +71,7 @@ export class AuthController {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
-        maxAge: 7 * 24 * 60 * 60 * 1000,
+        maxAge: 24 * 60 * 60 * 1000,
       });
 
       return res.status(200).json(result);
@@ -98,7 +98,7 @@ export class AuthController {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+      maxAge: 24 * 60 * 60 * 1000,
     });
 
     const frontendUrl = this.configService.get('FRONTEND_URL') || 'http://localhost:5173';
@@ -121,10 +121,11 @@ export class AuthController {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+      maxAge: 24 * 60 * 60 * 1000,
     });
 
-    const frontendUrl = this.configService.get('FRONTEND_URL') || 'http://localhost:5173';
+    const frontendUrl =
+      this.configService.get('FRONTEND_URL') || 'http://localhost:5173';
     return res.redirect(`${frontendUrl}/dashboard?auth=success`);
   }
 
@@ -158,7 +159,8 @@ export class AuthController {
   async confirmEmail(@Param('id') id: string, @Res() res: Response) {
     try {
       await this.authService.confirmMail(id);
-      const frontendUrl = this.configService.get('FRONTEND_URL') || 'http://localhost:5173';
+      const frontendUrl =
+        this.configService.get('FRONTEND_URL') || 'http://localhost:5173';
       return res.redirect(`${frontendUrl}/email-confirmed`);
     } catch (error: any) {
       return res.status(400).json({ message: error.message });

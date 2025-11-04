@@ -12,7 +12,7 @@ export class GatewayService {
     // Get connectors service URL from .env or use default
     const connectorsUrl = this.configService.get<string>(
       'CONNECTORS_SERVICE_URL',
-      'http://localhost:3001'
+      'http://localhost:3001',
     );
 
     // Create HTTP client for connectors-service
@@ -27,7 +27,7 @@ export class GatewayService {
     method: 'get' | 'post' | 'put' | 'delete',
     path: string,
     userId: string,
-    data?: any
+    data?: any,
   ): Promise<T> {
     try {
       const config = {
@@ -52,7 +52,7 @@ export class GatewayService {
         this.logger.error(`Connectors service error: ${error.response.status}`);
         throw new HttpException(
           error.response.data?.message || 'Error from connectors service',
-          error.response.status
+          error.response.status,
         );
       } else {
         this.logger.error('Cannot reach connectors service');
@@ -75,7 +75,12 @@ export class GatewayService {
   }
 
   updateConnector(connectorId: string, data: any, userId: string) {
-    return this.forwardRequest('put', `/connectors/${connectorId}`, userId, data);
+    return this.forwardRequest(
+      'put',
+      `/connectors/${connectorId}`,
+      userId,
+      data,
+    );
   }
 
   deleteConnector(connectorId: string, userId: string) {

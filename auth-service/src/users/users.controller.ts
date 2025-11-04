@@ -1,10 +1,10 @@
-import { 
-  Controller, 
-  Get, 
-  Put, 
-  Delete, 
-  UseGuards, 
-  Param, 
+import {
+  Controller,
+  Get,
+  Put,
+  Delete,
+  UseGuards,
+  Param,
   Body,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
@@ -52,10 +52,7 @@ export class UsersController {
   @Put(':id')
   @UseGuards(RolesGuard)
   @Roles('ADMIN')
-  async update(
-    @Param('id') id: string,
-    @Body() updateUserDto: UpdateUserDto,
-  ) {
+  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(id, updateUserDto);
   }
 

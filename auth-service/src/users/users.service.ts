@@ -30,17 +30,20 @@ export class UsersService {
       orderBy: { createdAt: 'desc' },
     });
 
-    return users.map(user => this.excludePassword(user));
+    return users.map((user) => this.excludePassword(user));
   }
 
   // Update user
-  async update(id: string, data: Partial<{
-    username: string;
-    email: string;
-    image: string;
-    verified: boolean;
-    role: UserRole;
-  }>) {
+  async update(
+    id: string,
+    data: Partial<{
+      username: string;
+      email: string;
+      image: string;
+      verified: boolean;
+      role: UserRole;
+    }>,
+  ) {
     const user = await prisma.user.update({
       where: { id },
       data,
@@ -60,7 +63,8 @@ export class UsersService {
 
   // Remove sensitive fields
   excludePassword(user: any) {
-    const { password, accessToken, refreshToken, ...userWithoutSensitive } = user;
+    const { password, accessToken, refreshToken, ...userWithoutSensitive } =
+      user;
     return userWithoutSensitive;
   }
 }

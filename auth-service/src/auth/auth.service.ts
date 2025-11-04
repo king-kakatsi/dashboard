@@ -27,7 +27,9 @@ export class AuthService {
     private readonly userService: UsersService,
     private readonly configService: ConfigService,
   ) {
-    const key = this.configService.get('ENCRYPTION_KEY') || 'default-key-change-in-production';
+    const key =
+      this.configService.get('ENCRYPTION_KEY') ||
+      'default-key-change-in-production';
     this.encryptionKey = Buffer.from(key, 'utf-8').slice(0, 32);
   }
 
@@ -35,11 +37,11 @@ export class AuthService {
     const existingUser = await prisma.user.findUnique({
       where: { email: data.email },
     });
-    
+
     if (existingUser) {
       throw new ConflictException('Email already exists');
     }
-    
+
     if (data.password !== data.passwordConfirmation) {
       throw new BadRequestException("Passwords don't match");
     }
@@ -69,7 +71,7 @@ export class AuthService {
     const user = await prisma.user.findUnique({
       where: { email: data.email },
     });
-    
+
     if (!user || user.provider !== AuthProvider.LOCAL) {
       throw new UnauthorizedException('Invalid credentials');
     }
@@ -97,8 +99,8 @@ export class AuthService {
       throw new BadRequestException('Email not provided by OAuth provider');
     }
 
-    // FIXED: Cast to AuthProvider type
-    const authProvider = AuthProvider[provider.toUpperCase() as keyof typeof AuthProvider];
+    const authProvider =
+      AuthProvider[provider.toUpperCase() as keyof typeof AuthProvider];
 
     let user = await prisma.user.findFirst({
       where: {
@@ -123,7 +125,7 @@ export class AuthService {
           email,
           username: profile.displayName || email.split('@')[0],
           image: profile.photos?.[0]?.value,
-          provider: authProvider, // FIXED: Now properly typed
+          provider: authProvider,
           providerId: profile.id,
           verified: true,
           accessToken: profile.accessToken
@@ -256,7 +258,6 @@ export class AuthService {
     return this.userService.update(id, { verified: true });
   }
 
-  // FIXED: Proper typing with imported Multer types
   async uploadImage(
     file: Express.Multer.File,
     folder: string = 'widget_platform',
@@ -277,7 +278,6 @@ export class AuthService {
     });
   }
 
-  // FIXED: Proper typing with imported Multer types
   checkFile(file: Express.Multer.File) {
     if (!file) {
       throw new BadRequestException('No file uploaded');
@@ -295,11 +295,7 @@ export class AuthService {
 
   private encrypt(text: string): string {
     const iv = crypto.randomBytes(16);
-    const cipher = crypto.createCipheriv(
-      'aes-256-cbc',
-      this.encryptionKey,
-      iv,
-    );
+    const cipher = crypto.createCipheriv('aes-256-cbc', this.encryptionKey, iv);
     let encrypted = cipher.update(text, 'utf8', 'hex');
     encrypted += cipher.final('hex');
     return `${iv.toString('hex')}:${encrypted}`;
