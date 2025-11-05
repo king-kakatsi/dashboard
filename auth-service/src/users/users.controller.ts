@@ -1,5 +1,6 @@
 import {
   Controller,
+  Post,
   Get,
   Put,
   Delete,
@@ -17,7 +18,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 @Controller('users')
 @UseGuards(CustomAuthGuard)
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
 
   // Get current user profile
   @Get('profile')
