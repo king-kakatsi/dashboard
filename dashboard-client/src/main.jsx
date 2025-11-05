@@ -5,7 +5,7 @@ import "./index.css";
 
 import Navbar from "./components/navbar";
 import Footer from "./components/footer";
-import Dashboard from "./pages/dashbord";
+import Dashboard from "./pages/dashboard";
 import Login from "./pages/auth/login";
 import Register from "./pages/auth/register";
 
