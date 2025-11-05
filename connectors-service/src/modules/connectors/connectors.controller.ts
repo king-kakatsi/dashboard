@@ -15,7 +15,7 @@ import { UpdateConnectorDto } from './dto/update-connector.dto';
 export class ConnectorsController {
   constructor(private readonly connectorsService: ConnectorsService) {}
 
-  @Post('create')
+  @Post()
   async create(@Body() createConnectorDto: CreateConnectorDto) {
     return this.connectorsService.create(createConnectorDto);
   }

@@ -26,7 +26,7 @@ export class GatewayService {
   private async forwardRequest<T>(
     method: 'get' | 'post' | 'put' | 'delete',
     path: string,
-    userId: string,
+    userId?: string,
     data?: any,
   ): Promise<T> {
     try {
@@ -62,7 +62,14 @@ export class GatewayService {
   }
 
   // ===== Connectors Methods =====
-  getConnectors(userId: string) {
+  // getAllConnectors() {
+  //   return this.forwardRequest('get', '/connectors');
+  // }
+
+  getConnectors(userId?: string) {
+    if (!userId){
+      return this.forwardRequest('get', '/connectors');
+    }
     return this.forwardRequest('get', '/connectors', userId);
   }
 
@@ -88,7 +95,7 @@ export class GatewayService {
   }
 
   // ===== Widgets Methods =====
-  getWidgets(userId: string) {
+  getWidgets(userId?: string) {
     return this.forwardRequest('get', '/widgets', userId);
   }
 
