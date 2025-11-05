@@ -12,4 +12,8 @@ export class CreateConnectorDto {
     @IsNotEmpty()
     @IsUrl()
     icon: string;
+
+    @IsNotEmpty()
+    @IsUrl()
+    baseUrl: string;
 }

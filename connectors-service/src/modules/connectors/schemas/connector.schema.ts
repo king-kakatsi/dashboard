@@ -14,6 +14,9 @@ export class Connector {
 
     @Prop({ unique: true, required: true })
     icon: string;
+
+    @Prop({ unique: true })
+    baseUrl: string;
 }
 
 export const ConnectorSchema = SchemaFactory.createForClass(Connector);
