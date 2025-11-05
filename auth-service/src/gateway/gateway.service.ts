@@ -111,4 +111,24 @@ export class GatewayService {
   refreshWidget(widgetId: string, userId: string) {
     return this.forwardRequest('post', `/widgets/${widgetId}/refresh`, userId);
   }
+
+  // ===== Dashboard Method =====
+  async getUserDashboard(userId: string) {
+    try {
+      // Récupère connectors et widgets en parallèle pour optimiser
+      const [connectors, widgets] = await Promise.all([
+        this.getConnectors(userId),
+        this.getWidgets(userId),
+      ]);
+
+      return {
+        connectors,
+        widgets,
+      };
+    } catch (error) {
+      console.log('================\nDEBUG - gateway.service > getUserDashboard: ' + error);
+      this.logger.error('Failed to fetch dashboard data');
+      throw new HttpException('Failed to fetch dashboard data', 500);
+    }
+  }
 }

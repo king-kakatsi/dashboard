@@ -42,6 +42,8 @@ export class UsersService {
       image: string;
       verified: boolean;
       role: UserRole;
+      connectedServiceIds: string[];
+      activeWidgetIds: string[];
     }>,
   ) {
     const user = await prisma.user.update({
@@ -59,6 +61,48 @@ export class UsersService {
     });
 
     return { message: 'User deleted successfully' };
+  }
+
+  async addConnectedService(userId: string, serviceId: string) {
+    const user = await this.findById(userId);
+
+    if (user.connectedServiceIds.includes(serviceId)) {
+      return user;
+    }
+
+    return this.update(userId, {
+      connectedServiceIds: [...user.connectedServiceIds, serviceId],
+    });
+  }
+
+  async removeConnectedService(userId: string, serviceId: string) {
+    const user = await this.findById(userId);
+
+    return this.update(userId, {
+      connectedServiceIds: user.connectedServiceIds.filter(
+        (id) => id !== serviceId,
+      ),
+    });
+  }
+
+  async addActiveWidget(userId: string, widgetId: string) {
+    const user = await this.findById(userId);
+
+    if (user.activeWidgetIds.includes(widgetId)) {
+      return user;
+    }
+
+    return this.update(userId, {
+      activeWidgetIds: [...user.activeWidgetIds, widgetId],
+    });
+  }
+
+  async removeActiveWidget(userId: string, widgetId: string) {
+    const user = await this.findById(userId);
+
+    return this.update(userId, {
+      activeWidgetIds: user.activeWidgetIds.filter((id) => id !== widgetId),
+    });
   }
 
   // Remove sensitive fields

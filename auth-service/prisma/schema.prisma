@@ -26,6 +26,14 @@ model User {
   image         String?
   password      String?       // Optional for OAuth users
   role          UserRole      @default(USER)
+
+  // Connected services (IDs from connectors-service)
+  // Store as array of strings since they're external IDs
+  connectedServiceIds String[]  @default([]) 
+  
+  // Active widgets (IDs from connectors-service)
+  // Each widget belongs to a service
+  activeWidgetIds     String[]  @default([])
   
   // OAuth fields
   provider      AuthProvider  @default(LOCAL)

@@ -63,4 +63,36 @@ export class UsersController {
   async delete(@Param('id') id: string) {
     return this.usersService.delete(id);
   }
+
+  @Post('services/:serviceId')
+  async connectService(
+    @CurrentUser() user: any,
+    @Param('serviceId') serviceId: string,
+  ) {
+    return this.usersService.addConnectedService(user.id, serviceId);
+  }
+
+  @Delete('services/:serviceId')
+  async disconnectService(
+    @CurrentUser() user: any,
+    @Param('serviceId') serviceId: string,
+  ) {
+    return this.usersService.removeConnectedService(user.id, serviceId);
+  }
+
+  @Post('widgets/:widgetId')
+  async activateWidget(
+    @CurrentUser() user: any,
+    @Param('widgetId') widgetId: string,
+  ) {
+    return this.usersService.addActiveWidget(user.id, widgetId);
+  }
+
+  @Delete('widgets/:widgetId')
+  async deactivateWidget(
+    @CurrentUser() user: any,
+    @Param('widgetId') widgetId: string,
+  ) {
+    return this.usersService.removeActiveWidget(user.id, widgetId);
+  }
 }
