@@ -6,7 +6,7 @@ const dockApps = [
     id: "safari",
     name: "Safari",
     icon: "https://icons.iconarchive.com/icons/wineass/ios7-redesign/256/Safari-icon.png",
-    content: <p>My Widget's</p>,
+    content: <p>My Widgets</p>,
   },
   {
     id: "notes",
