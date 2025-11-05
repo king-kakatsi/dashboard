@@ -7,17 +7,44 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum AuthProvider {
+  LOCAL
+  GOOGLE
+  GITHUB
+  MICROSOFT
+}
 
 model User {
-    id                 String    @id @default(auto()) @map("_id") @db.ObjectId
-    email              String    @unique
-    username           String
-    password           String
-    activeServices     String[]  @db.ObjectId
-    activeWidgets      String[]  @db.ObjectId
-    verified           Boolean   @default(false)
-    createdAt          DateTime  @default(now())
-    updatedAt          DateTime  @updatedAt
+  id            String        @id @default(auto()) @map("_id") @db.ObjectId
+  email         String        @unique
+  username      String
+  image         String?
+  password      String?       // Optional for OAuth users
+  role          UserRole      @default(USER)
 
+  // Connected services (IDs from connectors-service)
+  // Store as array of strings since they're external IDs
+  connectedServiceIds String[]  @default([]) 
+  
+  // Active widgets (IDs from connectors-service)
+  // Each widget belongs to a service
+  activeWidgetIds     String[]  @default([])
+  
+  // OAuth fields
+  provider      AuthProvider  @default(LOCAL)
+  providerId    String?       // OAuth provider user ID
+  accessToken   String?       // Encrypted OAuth access token
+  refreshToken  String?       // Encrypted OAuth refresh token
+  
+  verified      Boolean       @default(false)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@unique([provider, providerId])
   @@map("users")
 }
