@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { getConnectors } from "../services/apiService";
+// import BackImage from "/src/assets/Image.jpeg";
+import BackImage from '/src/assets/Image.jpeg';
 
 export default function Dashboard() {
   const [connectors, setConnectors] = useState([]);
@@ -29,12 +31,15 @@ export default function Dashboard() {
 
   return (
     <div
-      className="relative min-h-screen bg-cover bg-center text-gray-100 font-sans"
+      className="relative min-h-screen bg-contain bg-center text-gray-100 font-sans"
       style={{
-        backgroundImage:
-          "url('https://4kwallpapers.com/images/walls/thumbs_3t/1432.jpg')",
+        backgroundImage: `url(${BackImage})`,
       }}
     >
+      {/* style={{
+  backgroundImage: "url('https://4kwallpapers.com/images/walls/thumbs_3t/1432.jpg')",
+}} */}
+
       {/* connectors Dock */}
       <footer className="fixed bottom-0 left-0 right-0 flex justify-center items-end z-40 h-28 p-3">
         <div className="bg-black/40 backdrop-blur-xl p-3 rounded-2xl flex items-end space-x-3">
@@ -78,15 +83,13 @@ const Window = ({ app, onClose, zIndex }) => {
         <span className="font-medium">{app.title}</span>
         <button
           onClick={onClose}
-          className="text-red-400 hover:text-red-500 text-xl leading-none"
+          className="text-red-400 hover:text-red-500 text-xl leading-none cursor-pointer"
         >
           x
         </button>
       </div>
       <div className="p-4 text-gray-200">
-        <p>
-          {app.description || "No descripton availble for this connector."}
-        </p>
+        <p>{app.description || "No descripton availble for this connector."}</p>
       </div>
     </div>
   );
