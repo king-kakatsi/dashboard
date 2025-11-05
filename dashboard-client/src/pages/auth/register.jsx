@@ -1,8 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import Login from "./login";
+// import { Login } from "next-auth/react";
 
 export default function Register() {
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -14,20 +17,24 @@ export default function Register() {
     setError("");
 
     if (password !== confirmPassword) {
-      setError("Password's don't match");
+      setError("Passwords do not match");
       return;
     }
 
     setLoading(true);
 
-    // Simulation d'une requête d'inscription API
+    // Simulate API registration
     await new Promise((r) => setTimeout(r, 1000));
 
-    alert("Connexion succes");
-    // Exemple de redirection : router.push("/login");
+    alert("Registration successful!");
+    // Example: redirect to login page
+    // router.push("/login");
 
     setLoading(false);
   };
+
+  const handleGoogleRegister = () => Login("google");
+  const handleGitHubRegister = () => Login("github");
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
@@ -43,6 +50,22 @@ export default function Register() {
           </div>
         )}
 
+          <div className="mb-4">
+          <label htmlFor="username" className="block text-gray-700 mb-2">
+            Username
+          </label>
+          <input
+            type="text"
+            id="username"
+            className="w-full border border-gray-300 rounded px-3 py-2 focus:ring focus:ring-blue-300"
+            placeholder="e.g. johndoe"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+          />
+        </div>
+
+        {/* Email */}
         <div className="mb-4">
           <label htmlFor="email" className="block text-gray-700 mb-2">
             Email
@@ -51,13 +74,14 @@ export default function Register() {
             type="email"
             id="email"
             className="w-full border border-gray-300 rounded px-3 py-2 focus:ring focus:ring-blue-300"
-            placeholder="ex: utilisateur@example.com"
+            placeholder="e.g. user@example.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
           />
         </div>
 
+        {/* Password */}
         <div className="mb-4">
           <label htmlFor="password" className="block text-gray-700 mb-2">
             Password
@@ -66,38 +90,65 @@ export default function Register() {
             type="password"
             id="password"
             className="w-full border border-gray-300 rounded px-3 py-2 focus:ring focus:ring-blue-300"
-            placeholder="Mot de passe"
+            placeholder="Your password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
         </div>
 
+        {/* Confirm password */}
         <div className="mb-6">
           <label htmlFor="confirmPassword" className="block text-gray-700 mb-2">
-            Confirmation Password 
+            Confirm Password
           </label>
           <input
             type="password"
             id="confirmPassword"
             className="w-full border border-gray-300 rounded px-3 py-2 focus:ring focus:ring-blue-300"
-            placeholder="confirmation password"
+            placeholder="Repeat your password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
           />
         </div>
 
+        {/* Submit */}
         <button
           type="submit"
           disabled={loading}
           className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
         >
-          {loading ? "Register..." : "Login"}
+          {loading ? "Registering..." : "Register"}
         </button>
 
+        {/* Divider */}
+        <div className="flex items-center my-6">
+          <div className="flex-grow border-t border-gray-300"></div>
+          <span className="mx-2 text-gray-500 text-sm">OR</span>
+          <div className="flex-grow border-t border-gray-300"></div>
+        </div>
+
+        {/* Social register buttons */}
+        <button
+          type="button"
+          onClick={handleGoogleRegister}
+          className="w-full bg-red-500 text-white py-2 rounded hover:bg-red-600 transition mb-3"
+        >
+          Continue with Google
+        </button>
+
+        <button
+          type="button"
+          onClick={handleGitHubRegister}
+          className="w-full bg-gray-800 text-white py-2 rounded hover:bg-gray-900 transition"
+        >
+          Continue with GitHub
+        </button>
+
+        {/* Link to login */}
         <p className="text-center text-sm text-gray-600 mt-4">
-          You alredy have an account?{" "}
+          Already have an account?{" "}
           <a href="/login" className="text-blue-600 hover:underline">
             Login
           </a>
