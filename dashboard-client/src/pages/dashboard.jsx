@@ -1,20 +1,23 @@
 import React, { useEffect, useState } from "react";
-import { getConnectors } from "../services/apiService";
+import { getConnectors, getWidgets } from "../services/apiService";
 // import BackImage from "/src/assets/Image.jpeg";
 import BackImage from '/src/assets/Image.jpeg';
 
 export default function Dashboard() {
   const [connectors, setConnectors] = useState([]);
+  const [widgets, setWidgets] = useState([]);
   const [openApps, setOpenApps] = useState([]);
 
-  // fetch connectors from api
+  // fetch connectors and widgets from api
   useEffect(() => {
-    const fetchConnectors = async () => {
-      const data = await getConnectors();
+    const fetchData = async () => {
+      const connectorsData = await getConnectors();
+      const widgetsData = await getWidgets();
       // console.log(data);
-      setConnectors(data);
+      setConnectors(connectorsData);
+      setWidgets(widgetsData);
     };
-    fetchConnectors();
+    fetchData();
   }, []);
 
   // Open a window

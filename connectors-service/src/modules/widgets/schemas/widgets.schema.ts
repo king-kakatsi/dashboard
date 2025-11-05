@@ -7,10 +7,10 @@ export type WidgetDocument = Widget & Document;
 export class Widget {
   // @Prop({ type: [{ type: Types.ObjectId, ref: 'User' }], default: [] })
   // userIds: Types.ObjectId[];
-  @Prop({unique:true})
-  userIds:string
+  @Prop({ unique: true })
+  userIds: string
 
-  @Prop({ type: Types.ObjectId, ref: 'Service', required: true })
+  @Prop({ type: Types.ObjectId, ref: 'Connector', required: true })
   serviceId: Types.ObjectId;
 
   @Prop({ required: true })

@@ -13,7 +13,7 @@ import { UpdateWidgetDto } from './dto/update-widgets.dto';
 
 @Controller('widgets')
 export class WidgetsController {
-  constructor(private readonly widgetsService: WidgetsService) {}
+  constructor(private readonly widgetsService: WidgetsService) { }
 
   @Post()
   create(@Body() dto: CreateWidgetDto) {
@@ -40,7 +40,7 @@ export class WidgetsController {
     return this.widgetsService.remove(id);
   }
 
-  // ➕ Mettre à jour la position d’un widget pour un utilisateur
+  //Mettre à jour la position d’un widget pour un utilisateur
   @Put(':widgetId/user/:userId/position')
   updatePosition(
     @Param('widgetId') widgetId: string,
@@ -50,9 +50,15 @@ export class WidgetsController {
     return this.widgetsService.updateUserPosition(widgetId, userId, position);
   }
 
-  // 🔍 Lister les widgets d’un utilisateur
+  //Lister les widgets d’un utilisateur
   @Get('user/:userId')
   findByUser(@Param('userId') userId: string) {
     return this.widgetsService.findByUser(userId);
+  }
+
+  //find service
+  @Get('service/:serviceId')
+  findByService(@Param('serviceId') serviceId: string) {
+    return this.widgetsService.findByService(serviceId);
   }
 }
