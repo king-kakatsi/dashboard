@@ -20,11 +20,9 @@ const dockApps = [
     icon: "https://static.wikia.nocookie.net/logopedia/images/8/83/Apple_Photos_2025_III.png",
     content: <p>My picture's</p>,
   },
-  <Footer />
-
 ];
 
-export default function Dashbord() {
+export default function Dashboard() {
   const [openApps, setOpenApps] = useState([]);
 
   // Ouvrir une fenêtre
@@ -49,12 +47,12 @@ export default function Dashbord() {
     >
       {/* Dock */}
       <footer className="fixed bottom-0 left-0 right-0 flex justify-center items-end z-40 h-28 p-3">
-        <div className="bg-black/40 backdrop-blur-xl p-3 rounded-2xl flex items-end space-x-3">
+        <div className="bg-black/40 backdrop-blur-xl p-3 rounded-2xl flex items-end space-x-3 cursor-pointer">
           {dockApps.map((app) => (
             <button
               key={app.id}
               onClick={() => openApp(app)}
-              className="relative hover:scale-110 transition-transform"
+              className="relative hover:scale-110 transition-transform cursor-pointer"
             >
               <img
                 src={app.icon}
@@ -82,14 +80,14 @@ export default function Dashbord() {
 const Window = ({ app, onClose, zIndex }) => {
   return (
     <div
-      className="absolute top-20 left-1/2 -translate-x-1/2 bg-gray-900/80 backdrop-blur-xl border border-white/20 rounded-xl shadow-xl w-96"
+      className="absolute top-20 left-1/2 -translate-x-1/2 cursor-pointer bg-gray-900/80 backdrop-blur-xl border border-white/20 rounded-xl shadow-xl w-96"
       style={{ zIndex }}
     >
       <div className="flex justify-between items-center bg-gray-800/60 px-3 py-1.5 rounded-t-xl cursor-pointer">
         <span className="font-medium">{app.name}</span>
         <button
           onClick={onClose}
-          className="text-red-400 hover:text-red-500 text-xl leading-none"
+          className="text-red-400 hover:text-red-500 text-xl leading-none cursor-pointer"
         >
           x
         </button>
