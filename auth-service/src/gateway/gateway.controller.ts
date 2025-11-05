@@ -16,6 +16,11 @@ import { GatewayService } from './gateway.service';
 export class GatewayController {
   constructor(private readonly gatewayService: GatewayService) {}
 
+  @Get('dashboard')
+  getDashboard(@Request() req) {
+    return this.gatewayService.getUserDashboard(req.user.id);
+  }
+
   // ===== Connectors Routes =====
   @Get('connectors')
   getConnectors(@Request() req) {

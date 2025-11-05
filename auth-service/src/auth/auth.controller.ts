@@ -85,7 +85,7 @@ export class AuthController {
   @Get('google')
   @UseGuards(AuthGuard('google'))
   async googleAuth() {
-    // Initiates Google OAuth flow
+    // Passport handles this
   }
 
   @Get('google/callback')
@@ -101,14 +101,15 @@ export class AuthController {
       maxAge: 24 * 60 * 60 * 1000,
     });
 
-    const frontendUrl = this.configService.get('FRONTEND_URL') || 'http://localhost:5173';
+    const frontendUrl =
+      this.configService.get('FRONTEND_URL') || 'http://localhost:5173';
     return res.redirect(`${frontendUrl}/dashboard?auth=success`);
   }
 
   @Get('github')
   @UseGuards(AuthGuard('github'))
   async githubAuth() {
-    // Initiates GitHub OAuth flow
+    // Passport handles this
   }
 
   @Get('github/callback')

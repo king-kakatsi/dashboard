@@ -4,6 +4,7 @@ import {
   IsString,
   IsBoolean,
   IsEnum,
+  IsArray,
 } from 'class-validator';
 import { UserRole } from '@prisma/client';
 
@@ -19,6 +20,11 @@ export class UpdateUserDto {
   @IsOptional()
   @IsString()
   image?: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  connectedServiceIds?: string[];
 
   @IsOptional()
   @IsBoolean()
