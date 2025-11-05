@@ -1,40 +1,27 @@
-import React, { useState } from "react";
-import Footer from "../components/footer";
-// === Services Lists ===
-const dockApps = [
-  {
-    id: "safari",
-    name: "Safari",
-    icon: "https://icons.iconarchive.com/icons/wineass/ios7-redesign/256/Safari-icon.png",
-    content: <p>My Widget's</p>,
-  },
-  {
-    id: "notes",
-    name: "Notes",
-    icon: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Apple_Notes_icon.svg/2048px-Apple_Notes_icon.svg.png",
-    content: <p>My Widget's</p>,
-  },
-  {
-    id: "photos",
-    name: "Photos",
-    icon: "https://static.wikia.nocookie.net/logopedia/images/8/83/Apple_Photos_2025_III.png",
-    content: <p>My picture's</p>,
-  },
-  <Footer />
+import React, { useEffect, useState } from "react";
+import { getConnectors } from "../services/apiService";
 
-];
-
-export default function Dashbord() {
+export default function Dashboard() {
+  const [connectors, setConnectors] = useState([]);
   const [openApps, setOpenApps] = useState([]);
 
-  // Ouvrir une fenêtre
+  // fetch connectors from api
+  useEffect(() => {
+    const fetchConnectors = async () => {
+      const data = await getConnectors();
+      setConnectors(data);
+    };
+    fetchConnectors();
+  }, []);
+
+  // Open a window
   const openApp = (app) => {
     if (!openApps.find((a) => a.id === app.id)) {
       setOpenApps([...openApps, app]);
     }
   };
 
-  // Fermer une fenêtre
+  // close a window
   const closeApp = (id) => {
     setOpenApps(openApps.filter((a) => a.id !== id));
   };
@@ -47,10 +34,10 @@ export default function Dashbord() {
           "url('https://4kwallpapers.com/images/walls/thumbs_3t/1432.jpg')",
       }}
     >
-      {/* Dock */}
+      {/* connectors Dock */}
       <footer className="fixed bottom-0 left-0 right-0 flex justify-center items-end z-40 h-28 p-3">
         <div className="bg-black/40 backdrop-blur-xl p-3 rounded-2xl flex items-end space-x-3">
-          {dockApps.map((app) => (
+          {connectors.map((app) => (
             <button
               key={app.id}
               onClick={() => openApp(app)}
@@ -58,15 +45,16 @@ export default function Dashbord() {
             >
               <img
                 src={app.icon}
-                alt={app.name}
+                alt={app.title}
                 className="w-12 h-12 rounded"
               />
+              <p className="text-xs text-white mt-1">{app.title}</p>
             </button>
           ))}
         </div>
       </footer>
 
-      {/* Fenêtres ouvertes */}
+      {/* opened windows */}
       {openApps.map((app, index) => (
         <Window
           key={app.id}
@@ -86,7 +74,7 @@ const Window = ({ app, onClose, zIndex }) => {
       style={{ zIndex }}
     >
       <div className="flex justify-between items-center bg-gray-800/60 px-3 py-1.5 rounded-t-xl cursor-pointer">
-        <span className="font-medium">{app.name}</span>
+        <span className="font-medium">{app.title}</span>
         <button
           onClick={onClose}
           className="text-red-400 hover:text-red-500 text-xl leading-none"
@@ -94,7 +82,11 @@ const Window = ({ app, onClose, zIndex }) => {
           x
         </button>
       </div>
-      <div className="p-4 text-gray-200">{app.content}</div>
+      <div className="p-4 text-gray-200">
+        <p>
+          {app.description || "No descripton availble for this connector."}
+        </p>
+      </div>
     </div>
   );
 };
