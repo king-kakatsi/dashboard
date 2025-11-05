@@ -10,7 +10,7 @@ export class WidgetsService {
   constructor(
     @InjectModel(Widget.name)
     private readonly widgetModel: Model<WidgetDocument>,
-  ) {}
+  ) { }
 
   async create(dto: CreateWidgetDto): Promise<Widget> {
     const widget = new this.widgetModel(dto);
@@ -18,14 +18,13 @@ export class WidgetsService {
   }
 
   async findAll(): Promise<Widget[]> {
-    return this.widgetModel.find().populate('serviceId').populate('userIds').exec();
+    return this.widgetModel.find().populate('serviceId').exec();
   }
 
   async findOne(id: string): Promise<Widget> {
     const widget = await this.widgetModel
       .findById(id)
       .populate('serviceId')
-      .populate('userIds')
       .exec();
 
     if (!widget) throw new NotFoundException('Widget not found');
