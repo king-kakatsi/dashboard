@@ -57,7 +57,7 @@ export class ConnectorsService {
     async update(
         id: string,
         updateConnectorDto: UpdateConnectorDto,
-    ): Promise<Connector> {
+    ): Promise<any> {
         const updated = await this.connectorModel.findByIdAndUpdate(
             id,
             updateConnectorDto,
@@ -66,7 +66,11 @@ export class ConnectorsService {
         if (!updated) {
             throw new NotFoundException(`Connector ${id} not found`);
         }
-        return updated;
+        return {
+            success: true,
+            message: 'Connector updated successfully',
+            data: updated,
+        };
     }
 
     //delete connector
