@@ -9,6 +9,7 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchConnectors = async () => {
       const data = await getConnectors();
+      // console.log(data);
       setConnectors(data);
     };
     fetchConnectors();
