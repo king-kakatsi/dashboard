@@ -1,8 +1,85 @@
-import React from 'react';
-import Navigation from './Navigation';
-import Alert from './Alert';
+import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { getUserProfile, updateUserProfile } from '../../controllers/userController';
+import Navigation from '../../components/user/Nav';
+import Alert from '../../components/Alert';
 
-const EditProfile = ({ user, errors }) => {
+const EditProfile = () => {
+  const { userId } = useParams();
+  const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+  const [errors, setErrors] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  
+  const [formData, setFormData] = useState({
+    username: '',
+    email: ''
+  });
+
+  useEffect(() => {
+    const loadProfile = async () => {
+      setLoading(true);
+      const id = userId || localStorage.getItem('user_id');
+      
+      if (!id) {
+        navigate('/login');
+        return;
+      }
+
+      const [isSuccess, data] = await getUserProfile(id);
+      
+      if (isSuccess) {
+        setUser(data);
+        setFormData({
+          username: data.username || '',
+          email: data.email || ''
+        });
+      } else {
+        setErrors({ message: data?.message || 'Failed to load profile' });
+      }
+      setLoading(false);
+    };
+    
+    loadProfile();
+  }, [userId, navigate]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSubmitting(true);
+    setErrors(null);
+
+    const id = userId || localStorage.getItem('user_id');
+    const [isSuccess, data] = await updateUserProfile(id, formData);
+
+    if (isSuccess) {
+      navigate(`/users/${id}/profile`, { 
+        state: { success: { message: 'Profile updated successfully!' } } 
+      });
+    } else {
+      setErrors({ message: data?.message || 'Failed to update profile' });
+    }
+    setSubmitting(false);
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-indigo-950 via-purple-950 to-indigo-900 flex items-center justify-center">
+        <div className="text-white text-xl">
+          <i className="fas fa-spinner fa-spin mr-2"></i>Loading...
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-950 via-purple-950 to-indigo-900">
       <Navigation user={user} />
@@ -17,15 +94,15 @@ const EditProfile = ({ user, errors }) => {
 
           <Alert type="error" message={errors?.message} />
 
-          <form action={`/users/${user?.id}/profile/edit`} method="POST">
+          <form onSubmit={handleSubmit}>
             
-            {/* Username */}
             <div className="mb-5">
               <label className="block text-sm font-medium text-gray-700 mb-2">Username</label>
               <input 
                 type="text" 
                 name="username" 
-                defaultValue={user?.username || ''}
+                value={formData.username}
+                onChange={handleChange}
                 placeholder="Your username"
                 required
                 minLength="3"
@@ -33,27 +110,42 @@ const EditProfile = ({ user, errors }) => {
               />
             </div>
 
-            {/* Email */}
             <div className="mb-5">
               <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
               <input 
                 type="email" 
                 name="email" 
-                defaultValue={user?.email || ''}
+                value={formData.email}
+                onChange={handleChange}
                 placeholder="you@example.com"
                 required
                 className="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
               />
             </div>
 
-            {/* Actions */}
             <div className="flex gap-4">
               <button 
-                type="submit"
-                style={{ backgroundColor: '#FF214F' }}
-                className="flex-1 text-white py-3.5 rounded-xl font-semibold hover:opacity-90 transition-all shadow-lg"
+                type="button"
+                onClick={() => navigate(`/users/${user?.id}/profile`)}
+                className="flex-1 bg-gray-200 text-gray-700 py-3.5 rounded-xl font-semibold hover:bg-gray-300 transition-all"
               >
-                <i className="fas fa-save mr-2"></i>Save Changes
+                Cancel
+              </button>
+              <button 
+                type="submit"
+                disabled={submitting}
+                style={{ backgroundColor: '#FF214F' }}
+                className="flex-1 text-white py-3.5 rounded-xl font-semibold hover:opacity-90 transition-all shadow-lg disabled:opacity-50"
+              >
+                {submitting ? (
+                  <>
+                    <i className="fas fa-spinner fa-spin mr-2"></i>Saving...
+                  </>
+                ) : (
+                  <>
+                    <i className="fas fa-save mr-2"></i>Save Changes
+                  </>
+                )}
               </button>
             </div>
           </form>
