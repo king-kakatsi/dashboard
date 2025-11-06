@@ -39,7 +39,7 @@ const ProfileCard = ({ user }) => {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-6 text-center">
+      <div className="grid grid-cols-2 gap-4 mb-6 text-center">
         <div className="p-3 bg-gray-50 rounded-lg">
           <div className="text-2xl font-bold" style={{ color: '#FF214F' }}>
             {user?.services?.length || 0}
@@ -52,18 +52,13 @@ const ProfileCard = ({ user }) => {
           </div>
           <div className="text-xs text-gray-600">Widgets</div>
         </div>
-        <div className="p-3 bg-gray-50 rounded-lg">
-          <div className="text-2xl font-bold" style={{ color: '#FF214F' }}>
-            {user?.dashboards?.length || 0}
-          </div>
-          <div className="text-xs text-gray-600">Dashboards</div>
-        </div>
+        
       </div>
 
       {/* Actions */}
       <div className="space-y-3">
         <a 
-          href={`/users/${user?.id}/profile/edit`}
+          href={'/edit-profile'}
           style={{ backgroundColor: '#FF214F' }}
           className="block w-full text-center text-white py-3 rounded-lg font-semibold hover:opacity-90 transition-all"
         >

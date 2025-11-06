@@ -64,7 +64,9 @@ export async function logout(){
     const result = await postWithApi(`${AUTH_ENDPOINT}logout`)  
     if (result[0]){
         saveInLocalStorage('access_token', '')
+        saveInLocalStorage('user', '')
     }
+    return result[0]
 }
 
 
@@ -74,7 +76,7 @@ export async function logout(){
  * @returns {Promise<[boolean, object]>}
  */
 export async function getUserProfile(userId) {
-    return await getFromApi(`${USER_ENDPOINT}${userId}/profile`);
+    return await getFromApi(`${USER_ENDPOINT}${userId}/`);
 }
 
 /**
@@ -84,7 +86,10 @@ export async function getUserProfile(userId) {
  * @returns {Promise<[boolean, object]>}
  */
 export async function updateUserProfile(userId, data) {
-    return await updateWithApi(`${USER_ENDPOINT}`, `${userId}/profile/edit`, data);
+    const result = await updateWithApi(`${USER_ENDPOINT}`, null, data, false);
+    console.log('DEBUG - update result', result);
+    return result;
+    // return await updateWithApi(`${USER_ENDPOINT}`, null, data, false);
 }
 
 /**
@@ -94,7 +99,7 @@ export async function updateUserProfile(userId, data) {
  * @returns {Promise<[boolean, object]>}
  */
 export async function changeUserPassword(userId, data) {
-    return await postWithApi(`${USER_ENDPOINT}${userId}/profile/change-password`, data);
+    return await postWithApi(`${USER_ENDPOINT}${userId}/change-password`, data);
 }
 
 /**

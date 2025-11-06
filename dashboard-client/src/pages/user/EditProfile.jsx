@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { getUserProfile, updateUserProfile } from '../../controllers/userController';
 import Navigation from '../../components/user/Nav';
 import Alert from '../../components/Alert';
+import { fetchFromLocalStorage } from '../../services/localStorageService';
 
 const EditProfile = () => {
   const { userId } = useParams();
@@ -20,9 +21,11 @@ const EditProfile = () => {
   useEffect(() => {
     const loadProfile = async () => {
       setLoading(true);
-      const id = userId || localStorage.getItem('user_id');
+      const access_token = fetchFromLocalStorage('access_token');
+      const user = fetchFromLocalStorage('user');
+      const id = user?.id;
       
-      if (!id) {
+      if (!access_token) {
         navigate('/login');
         return;
       }
@@ -57,11 +60,11 @@ const EditProfile = () => {
     setSubmitting(true);
     setErrors(null);
 
-    const id = userId || localStorage.getItem('user_id');
-    const [isSuccess, data] = await updateUserProfile(id, formData);
+    const user = fetchFromLocalStorage('user');
+    const [isSuccess, data] = await updateUserProfile(user?.id, formData);
 
     if (isSuccess) {
-      navigate(`/users/${id}/profile`, { 
+      navigate('/edit-profile', { 
         state: { success: { message: 'Profile updated successfully!' } } 
       });
     } else {
@@ -106,10 +109,10 @@ const EditProfile = () => {
                 placeholder="Your username"
                 required
                 minLength="3"
-                className="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                className="w-full text-gray-600 px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
               />
             </div>
-
+{/* 
             <div className="mb-5">
               <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
               <input 
@@ -119,18 +122,11 @@ const EditProfile = () => {
                 onChange={handleChange}
                 placeholder="you@example.com"
                 required
-                className="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                className="w-full text-gray-600 px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
               />
-            </div>
+            </div> */}
 
             <div className="flex gap-4">
-              <button 
-                type="button"
-                onClick={() => navigate(`/users/${user?.id}/profile`)}
-                className="flex-1 bg-gray-200 text-gray-700 py-3.5 rounded-xl font-semibold hover:bg-gray-300 transition-all"
-              >
-                Cancel
-              </button>
               <button 
                 type="submit"
                 disabled={submitting}

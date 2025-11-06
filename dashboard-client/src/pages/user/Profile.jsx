@@ -5,6 +5,7 @@ import Navigation from '../../components/user/Nav';
 import ProfileCard from '../../components/user/ProfileCard';
 import ProfileTabs from '../../components/user/ProfileTabs';
 import Alert from '../../components/Alert';
+import { fetchFromLocalStorage } from '../../services/localStorageService';
 
 const Profile = () => {
   const { userId } = useParams();
@@ -17,9 +18,11 @@ const Profile = () => {
   useEffect(() => {
     const loadProfile = async () => {
       setLoading(true);
-      const id = userId || localStorage.getItem('user_id');
+      const access_token = fetchFromLocalStorage('access_token');
+      const user = fetchFromLocalStorage('user');
+      const id = user?.id;
       
-      if (!id) {
+      if (!access_token) {
         navigate('/login');
         return;
       }

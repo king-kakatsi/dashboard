@@ -34,7 +34,6 @@ export default axiosService;
  */
 export async function getFromApi(endPoint) {
     const result = await axiosService.get(endPoint);
-    console.log(result)
     if (result.status === 200) {
         const data = result.data;
         if(data){
@@ -57,9 +56,14 @@ export async function getFromApi(endPoint) {
 export async function postWithApi(endPoint, data = null, successStatus = 200) {
 
   try{
-      const result = await axiosService.post(endPoint, data);
-      if (result.status === successStatus) return [true, result.data]
-      return [false, result.data]
+    let result = null;
+    if (data != null){
+      result = await axiosService.post(endPoint, data);
+    } else{
+      result = await axiosService.post(endPoint);
+    }
+    if (result.status === successStatus) return [true, result.data]
+    return [false, result.data]
   }catch(error){
     console.log(error)
       return[false,error.response.data]
@@ -77,16 +81,17 @@ export async function postWithApi(endPoint, data = null, successStatus = 200) {
  * @param {object} data
  * @returns
  */
-export async function updateWithApi(endPoint, id, data) {
+export async function updateWithApi(endPoint, id = null, data, autoJoin = true) {
 
-    if (data && id) {
-         try {
-           const result = await axiosService.put(endPoint + id, data)
-           if (result.status === 200) return [true, result.data]
-           return [false, result.data]
-         } catch (error) {
-           return [false, error.response.data]
-         }
+    if (data) {
+      try {
+      if (autoJoin && id) endPoint += id;
+        const result = await axiosService.put(endPoint + id, data)
+        if (result.status === 200) return [true, result.data]
+        return [false, result.data]
+      } catch (error) {
+        return [false, error.response.data]
+      }
     }
     return [false, null];
 }
