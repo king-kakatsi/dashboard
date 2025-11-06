@@ -16,6 +16,7 @@ import { MailerService } from '@nestjs-modules/mailer';
 import { UsersService } from '../users/users.service';
 import { v2 as cloudinary } from 'cloudinary';
 import { AuthProvider } from '@prisma/client';
+import { EmailTemplateUtil } from 'src/common/utils/emailTemplate.utils';
 
 @Injectable()
 export class AuthService {
@@ -213,45 +214,57 @@ export class AuthService {
 
     const verificationLink = `${this.configService.get('FRONTEND_URL') || 'http://localhost:5173'}/auth/confirm-email/${user.id}`;
 
-    const message = `
-      <!DOCTYPE html>
-      <html>
-        <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f5f5f5;">
-          <table width="100%" cellpadding="0" cellspacing="0" style="padding: 20px;">
-            <tr>
-              <td align="center">
-                <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden;">
-                  <tr>
-                    <td style="background-color: #FF214F; padding: 40px 20px; text-align: center;">
-                      <h1 style="color: #ffffff; margin: 0; font-size: 32px;">Widget Platform</h1>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td style="padding: 40px 30px; text-align: center;">
-                      <h2 style="color: #333333; margin: 0 0 20px 0;">Welcome!</h2>
-                      <p style="color: #666666; font-size: 16px; margin: 0 0 30px 0;">
-                        Hi <strong style="color: #FF214F;">${user.username}</strong>, please verify your email to get started.
-                      </p>
-                      <a href="${verificationLink}" 
-                         style="display: inline-block; padding: 16px 40px; background-color: #FF214F; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px;">
-                        Verify Email
-                      </a>
-                    </td>
-                  </tr>
-                </table>
-              </td>
-            </tr>
-          </table>
-        </body>
-      </html>
-    `;
+    const htmlContent = EmailTemplateUtil.getVerificationEmail(
+      user.username,
+      verificationLink,
+    );
 
     return this.mailService.sendMail({
-      from: 'Widget Platform <noreply@widgetplatform.com>',
+      from: 'dashboard <noreply@dashboard.com>',
       to: user.email,
-      subject: 'Account Verification',
-      html: message,
+      subject: 'Verify Your Email - Dashboard',
+      html: htmlContent,
     });
+  }
+    // const message = `
+    //   <!DOCTYPE html>
+    //   <html>
+    //     <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f5f5f5;">
+    //       <table width="100%" cellpadding="0" cellspacing="0" style="padding: 20px;">
+    //         <tr>
+    //           <td align="center">
+    //             <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden;">
+    //               <tr>
+    //                 <td style="background-color: #FF214F; padding: 40px 20px; text-align: center;">
+    //                   <h1 style="color: #ffffff; margin: 0; font-size: 32px;">Widget Platform</h1>
+    //                 </td>
+    //               </tr>
+    //               <tr>
+    //                 <td style="padding: 40px 30px; text-align: center;">
+    //                   <h2 style="color: #333333; margin: 0 0 20px 0;">Welcome!</h2>
+    //                   <p style="color: #666666; font-size: 16px; margin: 0 0 30px 0;">
+    //                     Hi <strong style="color: #FF214F;">${user.username}</strong>, please verify your email to get started.
+    //                   </p>
+    //                   <a href="${verificationLink}" 
+    //                      style="display: inline-block; padding: 16px 40px; background-color: #FF214F; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px;">
+    //                     Verify Email
+    //                   </a>
+    //                 </td>
+    //               </tr>
+    //             </table>
+    //           </td>
+    //         </tr>
+    //       </table>
+    //     </body>
+    //   </html>
+    // `;
+
+    // return this.mailService.sendMail({
+    //   from: 'Widget Platform <noreply@widgetplatform.com>',
+    //   to: user.email,
+    //   subject: 'Account Verification',
+    //   html: message,
+    // });
   }
 
   async confirmMail(id: string) {
