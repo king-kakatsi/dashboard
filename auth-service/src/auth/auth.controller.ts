@@ -103,7 +103,7 @@ export class AuthController {
 
     const frontendUrl =
       this.configService.get('FRONTEND_URL') || 'http://localhost:5173';
-    return res.redirect(`${frontendUrl}/dashboard?auth=success`);
+    return res.redirect(`${frontendUrl}`);
   }
 
   @Get('github')
@@ -127,7 +127,7 @@ export class AuthController {
 
     const frontendUrl =
       this.configService.get('FRONTEND_URL') || 'http://localhost:5173';
-    return res.redirect(`${frontendUrl}/dashboard?auth=success`);
+    return res.redirect(`${frontendUrl}/`);
   }
 
   @Get('me')
