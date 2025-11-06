@@ -265,7 +265,7 @@ export class AuthService {
     //   subject: 'Account Verification',
     //   html: message,
     // });
-  }
+  // }
 
   async confirmMail(id: string) {
     return this.userService.update(id, { verified: true });
