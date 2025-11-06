@@ -17,13 +17,13 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // useEffect(() => {
-  //     // check if user is already authenticated
-  //     const accessToken = fetchFromLocalStorage('access_token');
-  //     if (accessToken !== false) {
-  //       navigate('/');
-  //     }
-  //   },[]);
+  useEffect(() => {
+      // check if user is already authenticated
+      const accessToken = fetchFromLocalStorage('access_token');
+      if (accessToken !== false) {
+        navigate('/');
+      }
+    },[]);
 
 
   const handleSubmit = async (e) => {

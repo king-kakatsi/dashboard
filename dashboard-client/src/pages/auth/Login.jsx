@@ -63,8 +63,8 @@ export default function Login() {
 
 
   // Social login handlers
-  const handleGoogleLogin = () => Login("google");
-  const handleGitHubLogin = () => Login("github");
+  const handleGoogleLogin = () => login(null, "google");
+  const handleGitHubLogin = () => login(null, "github");
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">

@@ -7,6 +7,7 @@ import Profile from "./pages/user/Profile";
 import EditProfile from "./pages/user/EditProfile";
 import ChangePassword from "./pages/user/ChangePassword";
 import ConfirmUpdate from "./pages/user/ConfirmUpdate";
+import { AuthCallback } from "./pages/auth/AuthCallback";
 
 function App() {
 
@@ -19,7 +20,8 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/edit-profile" element={<EditProfile />} />
         <Route path="/change-password" element={<ChangePassword />} />
-        <Route path="/confirm-update" element={<ConfirmUpdate />} />
+        <Route path="/confirm-update/:userId" element={<ConfirmUpdate />} />
+        <Route path="/auth/callback" element={<AuthCallback />} />
       </Routes>
     </>
   )

@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getUserProfile, changeUserPassword } from '../../controllers/userController';
+import { getUserProfile, changeUserPassword, logout } from '../../controllers/userController';
 import Navigation from '../../components/user/Nav';
 import Alert from '../../components/Alert';
+import { fetchFromLocalStorage } from '../../services/localStorageService';
 
 const ChangePassword = () => {
   const { userId } = useParams();
@@ -25,10 +26,11 @@ const ChangePassword = () => {
 
   useEffect(() => {
     const loadProfile = async () => {
-      setLoading(true);
-      const id = userId || localStorage.getItem('user_id');
+      const access_token = fetchFromLocalStorage('access_token');
+      const user = fetchFromLocalStorage('user');
+      const id = user?.id;
       
-      if (!id) {
+      if (!access_token) {
         navigate('/login');
         return;
       }
@@ -67,8 +69,8 @@ const ChangePassword = () => {
     setErrors(null);
     setSuccess(null);
 
-    const id = userId || localStorage.getItem('user_id');
-    const [isSuccess, data] = await changeUserPassword(id, formData);
+    const user = fetchFromLocalStorage('user');
+    const [isSuccess, data] = await changeUserPassword(user?.id, formData);
 
     if (isSuccess) {
       setSuccess({ message: 'Password changed successfully!' });
@@ -76,6 +78,8 @@ const ChangePassword = () => {
         currentPassword: '',
         newPassword: ''
       });
+      await logout();
+      navigate('/login');
     } else {
       setErrors({ message: data?.message || 'Failed to change password' });
     }
@@ -126,7 +130,7 @@ const ChangePassword = () => {
                   placeholder="Enter current password"
                   required
                   minLength="6"
-                  className="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all pr-12"
+                  className="w-full text-gray-600 px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all pr-12"
                 />
                 <button 
                   type="button" 
@@ -149,7 +153,7 @@ const ChangePassword = () => {
                   placeholder="Enter new password"
                   required
                   minLength="6"
-                  className="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all pr-12"
+                  className="w-full text-gray-600 px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all pr-12"
                 />
                 <button 
                   type="button" 
@@ -160,7 +164,7 @@ const ChangePassword = () => {
                 </button>
               </div>
               <p className="text-xs text-gray-500 mt-2">
-                <i className="fas fa-info-circle"></i> Minimum 6 characters
+                <i className="fas fa-info-circle"></i> Minimum 8 characters
               </p>
             </div>
 
@@ -169,7 +173,7 @@ const ChangePassword = () => {
                 <i className="fas fa-shield-alt" style={{ color: '#FF214F' }}></i> Password Tips:
               </p>
               <ul className="text-xs text-gray-600 space-y-1">
-                <li>Use at least 6 characters</li>
+                <li>Use at least 8 characters</li>
                 <li>Mix uppercase and lowercase letters</li>
                 <li>Include numbers and symbols</li>
                 <li>Avoid common words or patterns</li>
@@ -177,13 +181,6 @@ const ChangePassword = () => {
             </div>
 
             <div className="flex gap-4">
-              <button 
-                type="button"
-                onClick={() => navigate(`/users/${user?.id}/profile`)}
-                className="flex-1 bg-gray-200 text-gray-700 py-3.5 rounded-xl font-semibold hover:bg-gray-300 transition-all"
-              >
-                Cancel
-              </button>
               <button 
                 type="submit"
                 disabled={submitting}

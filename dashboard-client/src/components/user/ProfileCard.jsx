@@ -65,7 +65,7 @@ const ProfileCard = ({ user }) => {
           <i className="fas fa-edit mr-2"></i>Edit Profile
         </a>
         <a 
-          href={`/users/${user?.id}/profile/change-password/`}
+          href={`/change-password`}
           className="block w-full text-center bg-gray-200 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-300 transition-all"
         >
           <i className="fas fa-key mr-2"></i>Change Password

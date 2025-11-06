@@ -31,28 +31,17 @@ export async function register(userData = null, method = null){
  * @param {object} userData 
  * @returns {Promise<[boolean, object]>}
  */
-export async function login(userData){
-    return await postWithApi(`${AUTH_ENDPOINT}login`, userData)   
+export async function login(userData = null, method = null){
+    if (method === 'google'){
+        window.location.href = import.meta.env.VITE_API_URL + '/auth/google';
+    } else if (method === 'github'){ 
+        window.location.href = import.meta.env.VITE_API_URL + '/auth/github';
+    }else if (userData){
+        return await postWithApi(`${AUTH_ENDPOINT}login`, userData, 201)
+    } else {
+        return [false, {message: 'Invalid user data'}]
+    }
 }
-
-
-// /**
-//  * Login the user using google
-//  * @param {object} userData 
-//  * @returns {Promise<[boolean, object]>}
-//  */
-// export async function googleLogin(){
-//     return await postWithApi(`${AUTH_ENDPOINT}google`)   
-// }
-
-
-// /**
-//  * Login the user using github
-//  * @returns {Promise<[boolean, object]>}
-//  */
-// export async function githubLogin(){
-//     return await postWithApi(`${AUTH_ENDPOINT}google`)   
-// }
 
 
 /**
@@ -107,7 +96,7 @@ export async function getUserProfile(userId) {
  * @returns {Promise<[boolean, object]>}
  */
 export async function changeUserPassword(userId, data) {
-    return await postWithApi(`${USER_ENDPOINT}${userId}/change-password`, data);
+    return await updateWithApi(`${AUTH_ENDPOINT}change-password`, null, data, false);
 }
 
 /**

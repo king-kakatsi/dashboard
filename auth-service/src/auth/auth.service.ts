@@ -180,6 +180,7 @@ export class AuthService {
   async verifyToken(token: string) {
     try {
       const decoded = this.jwtService.verify(token);
+      console.log('\n\n\n\nDEBUG ======================', decoded);
       const user = await prisma.user.findUnique({
         where: { id: decoded.userId },
         select: {
@@ -201,6 +202,34 @@ export class AuthService {
     } catch (error) {
       throw new UnauthorizedException('Invalid or expired token');
     }
+  }
+
+  async changePassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string,
+  ) {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const bcrypt = require('bcrypt');
+    const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+
+    if (!isPasswordValid) {
+      throw new BadRequestException('Current password is incorrect');
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { password: hashedPassword },
+    });
+
+    return { message: 'Password changed successfully' };
   }
 
   async sendMail(id: string) {

@@ -9,6 +9,7 @@ import {
   Param,
   UseInterceptors,
   UploadedFile,
+  Put,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
@@ -103,7 +104,7 @@ export class AuthController {
 
     const frontendUrl =
       this.configService.get('FRONTEND_URL') || 'http://localhost:5173';
-    return res.redirect(`${frontendUrl}`);
+    return res.redirect(`${frontendUrl}/auth/callback?token=${token}`);
   }
 
   @Get('github')
@@ -125,9 +126,10 @@ export class AuthController {
       maxAge: 24 * 60 * 60 * 1000,
     });
 
+    console.log('\n\n\n\nDEBUG oAuth token =====================', token);
     const frontendUrl =
       this.configService.get('FRONTEND_URL') || 'http://localhost:5173';
-    return res.redirect(`${frontendUrl}/`);
+    return res.redirect(`${frontendUrl}/auth/callback?token=${token}`);
   }
 
   @Get('me')
@@ -166,5 +168,21 @@ export class AuthController {
     } catch (error: any) {
       return res.status(400).json({ message: error.message });
     }
+  }
+
+
+  
+  @Put('change-password')
+  @UseGuards(CustomAuthGuard)
+  async changePassword(
+    @CurrentUser() user: any,
+    @Body() body: { currentPassword: string; newPassword: string },
+  ) {
+    console.log("==========================", user);
+    return this.authService.changePassword(
+      user.id,
+      body.currentPassword,
+      body.newPassword,
+    );
   }
 }
