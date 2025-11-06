@@ -32,7 +32,7 @@ export default axiosService;
  * @param {string} endPoint
  * @returns
  */
-export async function fetchAllFromApi(endPoint) {
+export async function getFromApi(endPoint) {
     const result = await axiosService.get(endPoint);
     console.log(result)
     if (result.status === 200) {

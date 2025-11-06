@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Login from "./login";
-import { register } from "../../controllers/userController";
+import {  register } from "../../controllers/userController";
 import { useNavigate } from 'react-router-dom';
 import { fetchFromLocalStorage } from "../../services/localStorageService";
 // import { Login } from "next-auth/react";
@@ -17,13 +17,13 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
-      // check if user is already authenticated
-      const accessToken = fetchFromLocalStorage('access_token');
-      if (accessToken !== false) {
-        navigate('/');
-      }
-    },[]);
+  // useEffect(() => {
+  //     // check if user is already authenticated
+  //     const accessToken = fetchFromLocalStorage('access_token');
+  //     if (accessToken !== false) {
+  //       navigate('/');
+  //     }
+  //   },[]);
 
 
   const handleSubmit = async (e) => {
@@ -62,8 +62,8 @@ export default function Register() {
   };
 
 
-  const handleGoogleRegister = () => Login("google");
-  const handleGitHubRegister = () => Login("github");
+  const handleGoogleRegister = () => register(null, 'google');
+  const handleGithubRegister = () => register(null, 'github');
 
 
   return (
@@ -176,7 +176,7 @@ export default function Register() {
 
         <button
           type="button"
-          onClick={handleGitHubRegister}
+          onClick={handleGithubRegister}
           className="w-full bg-gray-800 text-white py-2 rounded hover:bg-gray-900 transition"
         >
           Continue with GitHub

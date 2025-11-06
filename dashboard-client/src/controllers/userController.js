@@ -1,4 +1,4 @@
-import { fetchAllFromApi, postWithApi, updateWithApi } from '../services/axiosService';
+import { getFromApi, postWithApi, updateWithApi } from '../services/axiosService';
 import { saveInLocalStorage } from '../services/localStorageService';
 
 const USER_ENDPOINT = 'users/';
@@ -10,8 +10,18 @@ const AUTH_ENDPOINT = 'auth/';
  * @param {object} userData 
  * @returns {Promise<[boolean, object]>}
  */
-export async function register(userData){
-    return await postWithApi(`${AUTH_ENDPOINT}register`, userData, 201)
+export async function register(userData = null, method = null){
+    if (method === 'google'){
+        // return await getFromApi(`${AUTH_ENDPOINT}google`)  
+        window.location.href = import.meta.env.VITE_API_URL + '/auth/google';
+    } else if (method === 'github'){
+        // return await getFromApi(`${AUTH_ENDPOINT}github`)  
+        window.location.href = import.meta.env.VITE_API_URL + '/auth/github';
+    }else if (userData){
+        return await postWithApi(`${AUTH_ENDPOINT}register`, userData, 201)
+    } else {
+        return [false, {message: 'Invalid user data'}]
+    }
     
 }
 
@@ -24,6 +34,25 @@ export async function register(userData){
 export async function login(userData){
     return await postWithApi(`${AUTH_ENDPOINT}login`, userData)   
 }
+
+
+// /**
+//  * Login the user using google
+//  * @param {object} userData 
+//  * @returns {Promise<[boolean, object]>}
+//  */
+// export async function googleLogin(){
+//     return await postWithApi(`${AUTH_ENDPOINT}google`)   
+// }
+
+
+// /**
+//  * Login the user using github
+//  * @returns {Promise<[boolean, object]>}
+//  */
+// export async function githubLogin(){
+//     return await postWithApi(`${AUTH_ENDPOINT}google`)   
+// }
 
 
 /**
@@ -45,7 +74,7 @@ export async function logout(){
  * @returns {Promise<[boolean, object]>}
  */
 export async function getUserProfile(userId) {
-    return await fetchAllFromApi(`${USER_ENDPOINT}${userId}/profile`);
+    return await getFromApi(`${USER_ENDPOINT}${userId}/profile`);
 }
 
 /**
@@ -73,5 +102,5 @@ export async function changeUserPassword(userId, data) {
  * @returns {Promise<[boolean, object]>}
  */
 export async function getCurrentUser() {
-    return await fetchAllFromApi('auth/me');
+    return await getFromApi('auth/me');
 }
