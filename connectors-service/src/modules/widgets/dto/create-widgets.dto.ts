@@ -14,7 +14,7 @@ export class CreateWidgetDto {
   //   @IsArray()
   //   @IsString({ each: true })
   //   userIds?: string[];
-  @IsString()
+  @IsArray()
   @IsOptional()
   userIds: string;
 
