@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { saveInLocalStorage, fetchFromLocalStorage } from "../../services/localStorageService";
 import { login } from "../../controllers/userController";
 import { useNavigate } from 'react-router-dom';
+import { refreshAxios } from "../../services/axiosService";
 
 
 export default function Login() {
@@ -47,6 +48,7 @@ export default function Login() {
         saveInLocalStorage('user', result[1].user); 
         setSuccess("Successfully logged in. Welcome back!");
         setError('');
+        refreshAxios();
         setTimeout(() => navigate('/'), 2000);
       } else {
         console.log(result[1])

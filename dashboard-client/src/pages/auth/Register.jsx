@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Login from "./login";
+import Login from "./Login";
 import {  register } from "../../controllers/userController";
 import { useNavigate } from 'react-router-dom';
 import { fetchFromLocalStorage } from "../../services/localStorageService";

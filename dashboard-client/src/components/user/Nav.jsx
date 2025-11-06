@@ -21,7 +21,7 @@ const Nav = () => {
 
 
   const handleLogout = async () => {
-    const result = logout();
+    const result = await logout();
     if (result) navigate('/login');
   };
 

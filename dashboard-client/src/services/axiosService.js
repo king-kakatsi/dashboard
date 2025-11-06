@@ -7,22 +7,28 @@ const baseURL = 'http://localhost:3001/'
 /**
  * *Axios instance for using axiosService endpoints*
  */
-const axiosService = axios.create({
-    baseURL: baseURL, // the backend base axiosService
-    timeout: 30000, // 30s delay max
-    headers: {
-        "Content-Type": "application/json",
-    }})
-
-    axiosService.interceptors.request.use((config) => {
-      const token = fetchFromLocalStorage('access_token')
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`
-      }
-      return config
-    })
+const axiosService = refreshAxios();
 export default axiosService;
 
+
+export function refreshAxios(){
+  const axiosService = axios.create({
+  baseURL: baseURL, // the backend base axiosService
+  timeout: 30000, // 30s delay max
+  headers: {
+      "Content-Type": "application/json",
+  }})
+
+  axiosService.interceptors.request.use((config) => {
+    const token = fetchFromLocalStorage('access_token')
+    console.log('DEBUG - axios service', token);
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
+    }
+    return config
+  })
+  return axiosService;
+}
 
 
 
