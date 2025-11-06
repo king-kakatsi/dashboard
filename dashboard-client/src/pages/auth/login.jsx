@@ -1,13 +1,27 @@
 "use client";
 
-import { useState } from "react";
-// import { Login } from "next-auth/react";
+import { useEffect, useState } from "react";
+import { saveInLocalStorage, fetchFromLocalStorage } from "../../services/localStorageService";
+import { login } from "../../controllers/userController";
+import { useNavigate } from 'react-router-dom';
+
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // check if user is already authenticated
+    const accessToken = fetchFromLocalStorage('access_token');
+    if (accessToken !== false) {
+      navigate('/');
+    }
+  },[]);
+
 
   // Handle classic email/password login
   const handleSubmit = async (e) => {
@@ -16,18 +30,35 @@ export default function Login() {
     setLoading(true);
 
     // Simulate API request
-    await new Promise((r) => setTimeout(r, 1000));
-
-    if (email === "admin@gmail.com" && password === "123456") {
-      alert("Login successful");
-      // Example: redirect to dashboard
-      // router.push("/dashboard");
-    } else {
-      setError("Invalid email or password.");
+    if (!email || !password) {
+      setError('Please enter both your email and password.');
+      return;
     }
 
+    try {
+      const result = await login({
+        email: email, 
+        password: password
+      });
+      console.log("DEBUG", result)
+
+      if (result[0] === true) {
+        saveInLocalStorage('access_token', result[1].access_token);
+        saveInLocalStorage('user', result[1].user); 
+        setSuccess("Successfully logged in. Welcome back!");
+        setError('');
+        setTimeout(() => navigate('/'), 2000);
+      } else {
+        console.log(result[1])
+        setError(result[1]?.message || 'Login failed. Please check your internet connection and inputs and try again.');
+      }  
+    } catch (err) {
+      setError(err.message || 'Registration failed. Please try again.');
+    }
     setLoading(false);
   };
+
+
 
   // Social login handlers
   const handleGoogleLogin = () => Login("google");
@@ -39,11 +70,16 @@ export default function Login() {
         onSubmit={handleSubmit}
         className="bg-white shadow-md rounded-lg px-8 py-10 w-full max-w-md"
       >
-        <h1 className="text-2xl font-bold text-center mb-6">Login</h1>
+        <h1 className="text-2xl text-blue-600 font-bold text-center mb-6">Login</h1>
 
         {error && (
           <div className="bg-red-100 text-red-700 px-3 py-2 rounded mb-4 text-sm">
             {error}
+          </div>
+        )}
+        {success && (
+          <div className="bg-green-100 text-green-700 px-3 py-2 rounded mb-4 text-sm">
+            {success}
           </div>
         )}
 
@@ -57,7 +93,7 @@ export default function Login() {
           <input
             type="email"
             id="email"
-            className="w-full border border-gray-300 rounded px-3 py-2 focus:ring focus:ring-blue-300"
+            className="w-full border text-gray-600 border-gray-300 rounded px-3 py-2 focus:ring focus:ring-blue-300"
             placeholder="e.g. admin@gmail.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -73,7 +109,7 @@ export default function Login() {
           <input
             type="password"
             id="password"
-            className="w-full border border-gray-300 rounded px-3 py-2 focus:ring focus:ring-blue-300"
+            className="w-full border border-gray-300 text-gray-600 rounded px-3 py-2 focus:ring focus:ring-blue-300"
             placeholder="Your password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}

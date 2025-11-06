@@ -1,4 +1,5 @@
 import axios from "axios";
+import { fetchFromLocalStorage } from "./localStorageService";
 
 
 const baseURL = 'http://localhost:3001/'
@@ -14,7 +15,7 @@ const axiosService = axios.create({
     }})
 
     axiosService.interceptors.request.use((config) => {
-      const token = localStorage.getItem('dashboard_token')
+      const token = fetchFromLocalStorage('access_token')
       if (token) {
         config.headers.Authorization = `Bearer ${token}`
       }
@@ -53,19 +54,16 @@ export async function fetchAllFromApi(endPoint) {
  * @param {object} data
  * @returns
  */
-export async function storeWithApi(endPoint, data) {
+export async function postWithApi(endPoint, data = null, successStatus = 200) {
 
-    if (data) {
-        try{
-            const result = await axiosService.post(endPoint, data);
-            if (result.status === 201) return [true, result.data]
-            return [false, result.data]
-        }catch(error){
-          console.log(error)
-            return[false,error.response.data]
-        }
-    }
-    return [false, null];
+  try{
+      const result = await axiosService.post(endPoint, data);
+      if (result.status === successStatus) return [true, result.data]
+      return [false, result.data]
+  }catch(error){
+    console.log(error)
+      return[false,error.response.data]
+  }
 }
 
 

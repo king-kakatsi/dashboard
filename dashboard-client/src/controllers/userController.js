@@ -1,6 +1,43 @@
-import { fetchAllFromApi, storeWithApi, updateWithApi } from '../services/axiosService';
+import { fetchAllFromApi, postWithApi, updateWithApi } from '../services/axiosService';
+import { saveInLocalStorage } from '../services/localStorageService';
 
 const USER_ENDPOINT = 'users/';
+const AUTH_ENDPOINT = 'auth/';
+
+
+/**
+ * Register the user
+ * @param {object} userData 
+ * @returns {Promise<[boolean, object]>}
+ */
+export async function register(userData){
+    return await postWithApi(`${AUTH_ENDPOINT}register`, userData, 201)
+    
+}
+
+
+/**
+ * Login the user
+ * @param {object} userData 
+ * @returns {Promise<[boolean, object]>}
+ */
+export async function login(userData){
+    return await postWithApi(`${AUTH_ENDPOINT}login`, userData)   
+}
+
+
+/**
+ * Logout the user
+ * @param {object} userData 
+ * @returns {Promise<[boolean, object]>}
+ */
+export async function logout(){
+    const result = await postWithApi(`${AUTH_ENDPOINT}logout`)  
+    if (result[0]){
+        saveInLocalStorage('access_token', '')
+    }
+}
+
 
 /**
  * Get user profile by ID
@@ -28,7 +65,7 @@ export async function updateUserProfile(userId, data) {
  * @returns {Promise<[boolean, object]>}
  */
 export async function changeUserPassword(userId, data) {
-    return await storeWithApi(`${USER_ENDPOINT}${userId}/profile/change-password`, data);
+    return await postWithApi(`${USER_ENDPOINT}${userId}/profile/change-password`, data);
 }
 
 /**

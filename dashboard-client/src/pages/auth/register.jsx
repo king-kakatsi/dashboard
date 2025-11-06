@@ -1,7 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Login from "./login";
+import { register } from "../../controllers/userController";
+import { useNavigate } from 'react-router-dom';
+import { fetchFromLocalStorage } from "../../services/localStorageService";
 // import { Login } from "next-auth/react";
 
 export default function Register() {
@@ -10,31 +13,58 @@ export default function Register() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+      // check if user is already authenticated
+      const accessToken = fetchFromLocalStorage('access_token');
+      if (accessToken !== false) {
+        navigate('/');
+      }
+    },[]);
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      return;
-    }
-
     setLoading(true);
+    if (!username || !email || !password || !confirmPassword) {
+            setError('Please fill in all fields.');
+            return;
+        }
+        if (password !== confirmPassword) {
+            setError('Passwords do not match.');
+            return;
+        }
+        try {
+            const result = await register({
+              username: username,
+              email: email,
+              password: password,
+              passwordConfirmation: confirmPassword
+            });
+            console.log("DEBUG", result)
 
-    // Simulate API registration
-    await new Promise((r) => setTimeout(r, 1000));
-
-    alert("Registration successful!");
-    // Example: redirect to login page
-    // router.push("/login");
-
+            if (result[0] === true){
+              setSuccess("Successfully register. You'll receive confirmation email!");
+              setTimeout(() => navigate('/login'), 2000);
+            } else {
+              console.log(result[1])
+              setError(result[1]?.message || 'Registration failed. Please check your internet connection and inputs and try again.');
+            }
+              
+        } catch (err) {
+            setError(err.message || 'Registration failed. Please try again.');
+        }
     setLoading(false);
   };
 
+
   const handleGoogleRegister = () => Login("google");
   const handleGitHubRegister = () => Login("github");
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
@@ -42,11 +72,17 @@ export default function Register() {
         onSubmit={handleSubmit}
         className="bg-white shadow-md rounded-lg px-8 py-10 w-full max-w-md"
       >
-        <h1 className="text-2xl font-bold text-center mb-6">Register</h1>
+        <h1 className="text-2xl text-blue-600 font-bold text-center mb-6">Register</h1>
 
         {error && (
           <div className="bg-red-100 text-red-700 px-3 py-2 rounded mb-4 text-sm">
             {error}
+          </div>
+        )}
+
+        {success && (
+          <div className="bg-green-100 text-green-700 px-3 py-2 rounded mb-4 text-sm">
+            {success}
           </div>
         )}
 
@@ -57,7 +93,7 @@ export default function Register() {
           <input
             type="text"
             id="username"
-            className="w-full border border-gray-300 rounded px-3 py-2 focus:ring focus:ring-blue-300"
+            className="w-full border text-gray-600 border-gray-300 rounded px-3 py-2 focus:ring focus:ring-blue-300"
             placeholder="e.g. johndoe"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
@@ -73,7 +109,7 @@ export default function Register() {
           <input
             type="email"
             id="email"
-            className="w-full border border-gray-300 rounded px-3 py-2 focus:ring focus:ring-blue-300"
+            className="w-full border text-gray-600 border-gray-300 rounded px-3 py-2 focus:ring focus:ring-blue-300"
             placeholder="e.g. user@example.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -89,7 +125,7 @@ export default function Register() {
           <input
             type="password"
             id="password"
-            className="w-full border border-gray-300 rounded px-3 py-2 focus:ring focus:ring-blue-300"
+            className="w-full border text-gray-600 border-gray-300 rounded px-3 py-2 focus:ring focus:ring-blue-300"
             placeholder="Your password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -105,7 +141,7 @@ export default function Register() {
           <input
             type="password"
             id="confirmPassword"
-            className="w-full border border-gray-300 rounded px-3 py-2 focus:ring focus:ring-blue-300"
+            className="w-full border text-gray-600 border-gray-300 rounded px-3 py-2 focus:ring focus:ring-blue-300"
             placeholder="Repeat your password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
