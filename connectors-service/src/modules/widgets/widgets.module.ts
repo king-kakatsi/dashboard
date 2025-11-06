@@ -2,8 +2,12 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { WidgetsController } from './widgets.controller';
 import { WidgetsService } from './widgets.service';
-import { Connector, ConnectorSchema } from '../connectors/schemas/connector.schema';
+import {
+  Connector,
+  ConnectorSchema,
+} from '../connectors/schemas/connector.schema';
 import { Widget, WidgetSchema } from './schemas/widgets.schema';
+import { GoogleController } from './google.controller';
 
 @Module({
   imports: [
@@ -12,7 +16,7 @@ import { Widget, WidgetSchema } from './schemas/widgets.schema';
       { name: Connector.name, schema: ConnectorSchema },
     ]),
   ],
-  controllers: [WidgetsController],
+  controllers: [WidgetsController, GoogleController],
   providers: [WidgetsService],
   exports: [WidgetsService],
 })
