@@ -15,3 +15,29 @@ export const getConnectors = async() => {
         return [];
     }
 };
+
+/* export async function getWidgets() {
+    const response = await fetch(`${URL}/widgets`, {
+        credentials: "include",
+    });
+    const data = await response.json();
+    return data;
+} */
+
+export const api = axios.create({
+    baseURL: URL,
+    withCredentials: true,
+});
+
+export const getWidgets = async() => {
+    const response = await api.get('/widgets');
+    return response.data;
+};
+
+export async function getWidgetsByService(serviceId) {
+    const res = await fetch(`${URL}/widgets/service/${serviceId}`, {
+        method: 'GET',
+        credentials: 'include',
+    });
+    return res.json();
+}

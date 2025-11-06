@@ -6,15 +6,16 @@ import {
   IsNumber,
   IsBoolean,
   IsNotEmpty,
+  IsUrl
 } from 'class-validator';
 
 export class CreateWidgetDto {
-//   @IsOptional()
-//   @IsArray()
-//   @IsString({ each: true })
-//   userIds?: string[];
+  //   @IsOptional()
+  //   @IsArray()
+  //   @IsString({ each: true })
+  //   userIds?: string[];
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   userIds: string;
 
   @IsString()
@@ -34,6 +35,10 @@ export class CreateWidgetDto {
   @IsOptional()
   @IsString()
   endpoint?: string;
+
+  @IsNotEmpty()
+  @IsUrl()
+  icon: string;
 
   @IsOptional()
   @IsNumber()

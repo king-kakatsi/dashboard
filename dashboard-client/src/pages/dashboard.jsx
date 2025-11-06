@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getConnectors } from "../services/apiService";
+import { getConnectors, getWidgetsByService } from "../services/apiService";
 // import BackImage from "/src/assets/Image.jpeg";
 import BackImage from '/src/assets/Image.jpeg';
 
@@ -7,14 +7,14 @@ export default function Dashboard() {
   const [connectors, setConnectors] = useState([]);
   const [openApps, setOpenApps] = useState([]);
 
-  // fetch connectors from api
+  // fetch connectorsfrom api
   useEffect(() => {
-    const fetchConnectors = async () => {
-      const data = await getConnectors();
+    const fetchData = async () => {
+      const connectorsData = await getConnectors();
       // console.log(data);
-      setConnectors(data);
+      setConnectors(connectorsData);
     };
-    fetchConnectors();
+    fetchData();
   }, []);
 
   // Open a window
@@ -45,7 +45,7 @@ export default function Dashboard() {
         <div className="bg-black/40 backdrop-blur-xl p-3 rounded-2xl flex items-end space-x-3">
           {connectors.map((app) => (
             <button
-              key={app.id}
+              key={app._id || app.id}
               onClick={() => openApp(app)}
               className="relative hover:scale-110 transition-transform"
             >
@@ -63,7 +63,7 @@ export default function Dashboard() {
       {/* opened windows */}
       {openApps.map((app, index) => (
         <Window
-          key={app.id}
+          key={app._id || app.id || index}
           app={app}
           onClose={() => closeApp(app.id)}
           zIndex={50 + index}
@@ -73,7 +73,19 @@ export default function Dashboard() {
   );
 }
 
+//window component
 const Window = ({ app, onClose, zIndex }) => {
+
+  //fetch widgets from api
+  const [widgets, setWidgets] = useState([]);
+  useEffect(() => {
+    const fetchWidgets = async () => {
+      const data = await getWidgetsByService(app._id);
+      setWidgets(data);
+    };
+    fetchWidgets();
+  }, [app]);
+
   return (
     <div
       className="absolute top-20 left-1/2 -translate-x-1/2 bg-gray-900/80 backdrop-blur-xl border border-white/20 rounded-xl shadow-xl w-96"
@@ -90,6 +102,78 @@ const Window = ({ app, onClose, zIndex }) => {
       </div>
       <div className="p-4 text-gray-200">
         <p>{app.description || "No descripton availble for this connector."}</p>
+        {/* Widgets*/}
+        <div className="mt-4">
+          <h3 className="text-sm font-semibold mb-2">Available widgets:</h3>
+          {widgets.length > 0 ? (
+            <div className="space-y-3">
+              {widgets.map((widget) => (
+                <WidgetCard key={widget._id} widget={widget} app={app}/>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-gray-400 italic">No widgets availble.</p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const WidgetCard = ({ widget, app }) => {
+  const [data, setData] = useState(null);
+  // function to get widget data
+  const fetchWidgetData = async () => {
+    // console.log(app.baseUrl + widget.endpoint);
+    const fullUrl = `${app.baseUrl}${widget.endpoint}`;
+    console.log(fullUrl);
+    try {
+      const res = await fetch(fullUrl, {
+        method: "GET",
+        credentials: "include",
+      });
+      
+      if (!res.ok) {
+        throw new Error(`Error: ${res.status}`);
+      }
+      const result = await res.json();
+      setData(result);
+    } catch (err) {
+      console.error("Error while fetching widget:", widget.name, err);
+      setData({ error: "Cannot load widget" });
+    }
+  };
+
+  // auto-refresh
+  useEffect(() => {
+    fetchWidgetData();
+    const interval = setInterval(fetchWidgetData, widget.refreshRate * 1000);
+    return () => clearInterval(interval);
+  }, [widget, app]);
+
+  return (
+    <div className="bg-gray-800/60 border border-white/10 rounded-lg p-3">
+      <h4 className="font-semibold text-sm mb-2">{widget.name}</h4>
+      <img
+        src={widget.icon}
+        alt={widget.name}
+        className="w-12 h-12 rounded"
+      />
+      <p className="text-xs text-gray-400 mb-2">{widget.description}</p>
+
+      {/* display content */}
+      <div className="text-sm bg-gray-900/40 p-2 rounded">
+        {data ? (
+          data.error ? (
+            <p className="text-red-400">{data.error}</p>
+          ) : (
+            <pre className="whitespace-pre-wrap text-xs">
+              {JSON.stringify(data, null, 2)}
+            </pre>
+          )
+        ) : (
+          <p className="text-gray-400 italic">Loading...</p>
+        )}
       </div>
     </div>
   );

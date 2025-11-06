@@ -6,6 +6,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConnectorsModule } from './modules/connectors/connectors.module';
 import { WidgetsModule } from './modules/widgets/widgets.module';
+import { GoogleModule } from './modules/widgets/google.module';
 
 @Module({
   imports: [
@@ -15,8 +16,9 @@ import { WidgetsModule } from './modules/widgets/widgets.module';
     DatabaseModule,
     ConnectorsModule,
     WidgetsModule,
+    GoogleModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

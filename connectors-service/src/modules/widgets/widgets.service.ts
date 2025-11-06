@@ -75,4 +75,10 @@ export class WidgetsService {
       .populate('serviceId')
       .exec();
   }
+
+  //find service
+  async findByService(serviceId: string): Promise<Widget[]> {
+    return this.widgetModel.find({ serviceId }).exec();
+  }
+
 }
