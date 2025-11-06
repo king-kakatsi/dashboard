@@ -154,6 +154,11 @@ const WidgetCard = ({ widget, app }) => {
   return (
     <div className="bg-gray-800/60 border border-white/10 rounded-lg p-3">
       <h4 className="font-semibold text-sm mb-2">{widget.name}</h4>
+      <img
+        src={widget.icon}
+        alt={widget.name}
+        className="w-12 h-12 rounded"
+      />
       <p className="text-xs text-gray-400 mb-2">{widget.description}</p>
 
       {/* display content */}

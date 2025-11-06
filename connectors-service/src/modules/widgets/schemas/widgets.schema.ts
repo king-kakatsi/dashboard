@@ -8,7 +8,7 @@ export class Widget {
   // @Prop({ type: [{ type: Types.ObjectId, ref: 'User' }], default: [] })
   // userIds: Types.ObjectId[];
   @Prop({ unique: true })
-  userIds: string
+  userIds: string;
 
   @Prop({ type: Types.ObjectId, ref: 'Connector', required: true })
   serviceId: Types.ObjectId;
@@ -21,6 +21,9 @@ export class Widget {
 
   @Prop()
   functionName: string;
+
+  @Prop({ unique: true, required: true })
+  icon: string;
 
   @Prop()
   endpoint: string;
