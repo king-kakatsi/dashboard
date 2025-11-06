@@ -44,19 +44,10 @@ export class EmailTemplateUtil {
     username: string,
     verificationLink: string,
   ): string {
-    return this.loadTemplate('verification-email', {
+    return this.loadTemplate('verificationEmail', {
       username,
       verificationLink,
     });
   }
 
-  /**
-   * Quick method for welcome email
-   */
-  static getWelcomeEmail(username: string, dashboardLink: string): string {
-    return this.loadTemplate('welcome-email', {
-      username,
-      dashboardLink,
-    });
-  }
 }
