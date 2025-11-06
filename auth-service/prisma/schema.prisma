@@ -22,9 +22,12 @@ enum AuthProvider {
 model User {
   id            String        @id @default(auto()) @map("_id") @db.ObjectId
   email         String        @unique
+  standByEmail  String?
   username      String
+  standByUsername String?
   image         String?
   password      String?       // Optional for OAuth users
+  standByPassword      String?      
   role          UserRole      @default(USER)
 
   // Connected services (IDs from connectors-service)

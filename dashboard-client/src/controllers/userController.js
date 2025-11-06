@@ -71,6 +71,26 @@ export async function logout(){
 
 
 /**
+ * Update user profile
+ * @param {string} userId 
+ * @param {object} data - { standByUsername, standByEmail }
+ * @returns {Promise<[boolean, object]>}
+ */
+export async function updateUserProfile(userId, data) {
+    return await updateWithApi(`${USER_ENDPOINT}profile`, null, data, false);
+}
+
+/**
+ * Confirm user update
+ * @param {string} userId 
+ * @returns {Promise<[boolean, object]>}
+ */
+export async function confirmUserUpdate(userId) {
+    return await getFromApi(`${USER_ENDPOINT}confirm-update/${userId}`);
+}
+
+
+/**
  * Get user profile by ID
  * @param {string} userId 
  * @returns {Promise<[boolean, object]>}
@@ -79,18 +99,6 @@ export async function getUserProfile(userId) {
     return await getFromApi(`${USER_ENDPOINT}${userId}/`);
 }
 
-/**
- * Update user profile
- * @param {string} userId 
- * @param {object} data - { username, email }
- * @returns {Promise<[boolean, object]>}
- */
-export async function updateUserProfile(userId, data) {
-    const result = await updateWithApi(`${USER_ENDPOINT}`, null, data, false);
-    console.log('DEBUG - update result', result);
-    return result;
-    // return await updateWithApi(`${USER_ENDPOINT}`, null, data, false);
-}
 
 /**
  * Change user password

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { getConnectors, getWidgetsByService } from "../services/apiService";
 // import BackImage from "/src/assets/Image.jpeg";
 import BackImage from '/src/assets/Image.jpeg';
+import { Navigate } from "react-router-dom";
 
 export default function Dashboard() {
   const [connectors, setConnectors] = useState([]);
@@ -43,6 +44,18 @@ export default function Dashboard() {
       {/* connectors Dock */}
       <footer className="fixed bottom-0 left-0 right-0 flex justify-center items-end z-40 h-28 p-3">
         <div className="bg-black/40 backdrop-blur-xl p-3 rounded-2xl flex items-end space-x-3">
+          <a
+              href="/profile"
+              className="relative hover:scale-110 transition-transform"
+            >
+              <img
+                src="https://freesvg.org/img/abstract-user-flat-4.png"
+                alt="profile icon"
+                className="w-12 h-12 rounded"
+              />
+              <p className="text-xs text-white mt-1">profile</p>
+            </a>
+
           {connectors.map((app) => (
             <button
               key={app._id || app.id}
@@ -107,7 +120,7 @@ const Window = ({ app, onClose, zIndex }) => {
           <h3 className="text-sm font-semibold mb-2">Available widgets:</h3>
           {widgets.length > 0 ? (
             <div className="space-y-3">
-              {widgets.map((widget) => (
+              {widgets?.map((widget) => (
                 <WidgetCard key={widget._id} widget={widget} app={app}/>
               ))}
             </div>
