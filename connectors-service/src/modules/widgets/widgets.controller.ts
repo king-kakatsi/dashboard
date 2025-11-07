@@ -70,4 +70,20 @@ export class WidgetsController {
   ) {
     return this.widgetsService.fetchWidgetData(id, queryParams);
   }
+
+  @Post(':id/activate/:userId')
+  activateForUser(
+    @Param('id') widgetId: string,
+    @Param('userId') userId: string,
+  ) {
+    return this.widgetsService.activateForUser(widgetId, userId);
+  }
+
+  @Delete(':id/deactivate/:userId')
+  deactivateForUser(
+    @Param('id') widgetId: string,
+    @Param('userId') userId: string,
+  ) {
+    return this.widgetsService.deactivateForUser(widgetId, userId);
+  }
 }

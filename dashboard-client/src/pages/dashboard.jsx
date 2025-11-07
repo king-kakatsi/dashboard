@@ -1,57 +1,103 @@
-import React, { useEffect, useState } from "react";
-import { getConnectors, getWidgetsByService } from "../services/apiService";
-// import BackImage from "/src/assets/Image.jpeg";
-import BackImage from "/src/assets/bg.jpg";
-import { Navigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { getAllConnectors } from "../controllers/connectorController";
 import { getUserDashboard } from "../controllers/userController";
-import SportsNewsWidget from "../components/news/FootNewsWidget";
-import { getFromApi } from "../services/axiosService";
 
 export default function Dashboard() {
   const [connectors, setConnectors] = useState([]);
   const [openApps, setOpenApps] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // fetch connectorsfrom api
   useEffect(() => {
     const fetchData = async () => {
-      const connectorsData = await getConnectors();
-      // console.log(connectorsData);
-      setConnectors(connectorsData);
+      try {
+        setIsLoading(true);
+        setError(null);
+        
+        const result = await getUserDashboard();
+        
+        if (result && result[1] && Array.isArray(result[1].connectors)) {
+          setConnectors(result[1].connectors);
+        } else {
+          const connectorsData = await getAllConnectors();
+          if (Array.isArray(connectorsData)) {
+            setConnectors(connectorsData);
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching dashboard:", err);
+        setError(err.message);
+        
+        if (err.response?.status === 401) {
+          window.location.href = '/login';
+          return;
+        }
+        
+        try {
+          const connectorsData = await getAllConnectors();
+          if (Array.isArray(connectorsData)) {
+            setConnectors(connectorsData);
+          }
+        } catch (fallbackErr) {
+          console.error("Fallback failed:", fallbackErr);
+        }
+      } finally {
+        setIsLoading(false);
+      }
     };
+    
     fetchData();
-    fetchUserDashboard();
   }, []);
 
-  const fetchUserDashboard = async () => {
-    const result = await getUserDashboard();
-    setConnectors(result[1].connectors);
-  };
+  // Helper function pour obtenir l'ID
+  const getAppId = (app) => app._id || app.id;
 
   // Open a window
   const openApp = (app) => {
-    if (!openApps.find((a) => a.id === app.id)) {
+    const appId = getAppId(app);
+    if (!openApps.find((a) => getAppId(a) === appId)) {
       setOpenApps([...openApps, app]);
     }
   };
 
-  // close a window
+  // Close a window
   const closeApp = (id) => {
-    setOpenApps(openApps.filter((a) => a.id !== id));
+    setOpenApps(openApps.filter((a) => getAppId(a) !== id));
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-900">
+        <p className="text-white">Loading...</p>
+      </div>
+    );
+  }
+
+  if (error && connectors.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-900">
+        <div className="text-center">
+          <p className="text-red-400 mb-4">Error: {error}</p>
+          <button 
+            onClick={() => window.location.href = '/login'}
+            className="bg-blue-500 px-4 py-2 rounded text-white"
+          >
+            Go to Login
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
       className="relative min-h-screen bg-cover bg-center text-gray-100 font-sans overflow-hidden"
       style={{
-        backgroundImage: `url(${BackImage})`,
+        backgroundImage: `url(${"ss"})`,
       }}
     >
-      {/* style={{
-  backgroundImage: "url('https://4kwallpapers.com/images/walls/thumbs_3t/1432.jpg')",
-}} */}
-
-      {/* connectors Dock */}
-      <div className="items-center justify-center m-10 ">
+      {/* Profile icon */}
+      <div className="items-center justify-center m-10">
         <a
           href="/profile"
           className="relative hover:scale-110 transition-transform"
@@ -61,162 +107,42 @@ export default function Dashboard() {
             alt="profile icon"
             className="w-12 h-12 rounded"
           />
-          <p className="text-xs text-white mt-1"></p>
         </a>
       </div>
+
+      {/* Connectors Dock */}
       <footer className="fixed bottom-0 left-0 right-0 flex justify-center items-end z-40 h-28 p-3">
         <div className="bg-black/40 backdrop-blur-xl p-3 rounded-2xl flex items-end space-x-3">
-          {connectors.map((app) => (
-            <button
-              key={app._id || app.id}
-              onClick={() => openApp(app)}
-              className="relative hover:scale-110 transition-transform"
-            >
-              <img
-                src={app.icon}
-                alt={app.title}
-                className="w-12 h-12 rounded"
-              />
-              <p className="text-xs text-white mt-1">{app.title}</p>
-            </button>
-          ))}
+          {Array.isArray(connectors) && connectors.length > 0 ? (
+            connectors.map((app) => (
+              <button
+                key={getAppId(app)}
+                onClick={() => openApp(app)}
+                className="relative hover:scale-110 transition-transform"
+              >
+                <img
+                  src={app.icon}
+                  alt={app.title}
+                  className="w-12 h-12 rounded"
+                />
+                <p className="text-xs text-white mt-1">{app.title}</p>
+              </button>
+            ))
+          ) : (
+            <p className="text-gray-400 text-sm">No connectors available</p>
+          )}
         </div>
       </footer>
 
-      {/* opened windows */}
+      {/* Opened windows */}
       {openApps.map((app, index) => (
         <Window
-          key={app._id || app.id || index}
+          key={getAppId(app)}
           app={app}
-          onClose={() => closeApp(app.id)}
+          onClose={() => closeApp(getAppId(app))}
           zIndex={50 + index}
         />
       ))}
     </div>
   );
 }
-
-//window component
-const Window = ({ app, onClose, zIndex }) => {
-  //fetch widgets from api
-  const [widgets, setWidgets] = useState([]);
-  useEffect(() => {
-    const fetchWidgets = async () => {
-      const data = await getWidgetsByService(app._id);
-      console.log('DEBUG - data', data);
-      setWidgets(data);
-    };
-    fetchWidgets();
-  }, [app]);
-
-  return (
-    <div
-      className="absolute top-20 left-1/2 -translate-x-1/2 bg-gray-900/80 backdrop-blur-xl border border-white/20 rounded-xl shadow-xl w-96"
-      style={{ zIndex }}
-    >
-      <div className="flex justify-between items-center bg-gray-800/60 px-3 py-1.5 rounded-t-xl cursor-pointer">
-        <span className="font-medium">{app.title}</span>
-        <button
-          onClick={onClose}
-          className="text-red-400 hover:text-red-500 text-xl leading-none cursor-pointer"
-        >
-          x
-        </button>
-      </div>
-      <div className="p-4 text-gray-200">
-        <p>{app.description || "No descripton availble for this connector."}</p>
-        {/* Widgets*/}
-        <div className="mt-4">
-          <h3 className="text-sm font-semibold mb-2">Available widgets:</h3>
-          {widgets.length > 0 ? (
-            <div className="space-y-3">
-              {widgets?.map((widget) => (
-                
-                <WidgetCard key={widget._id} widget={widget} app={app}/>
-              ))}
-            </div>
-          ) : (
-            <p className="text-sm text-gray-400 italic">No widgets availble.</p>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const WidgetCard = ({ widget, app }) => {
-
-  const [data, setData] = useState(null);
-
-  console.log('DEBUG - widget card', widget);
-  if (widget?.name === 'Sports News'){
-    return <SportsNewsWidget widget={widget} app={app} />;
-  }
-
-  // function to get widget data
-  const [isLoading, setLoading] = useState(false);
-
-  const fetchWidgetData = async () => {
-    setLoading(true);
-    const proxyUrl = `http://localhost:3000/proxy?baseUrl=${encodeURIComponent(
-      app.baseUrl
-    )}&endpoint=${encodeURIComponent(widget.endpoint)}`;
-
-    try {
-      // const res = await fetch(proxyUrl, {
-      //   method: "GET",
-      //   credentials: "include",
-      // });
-
-      // const res = getFromApi(`http://localhost:3000/widgets/${widget._id}/fetch`)
-
-      let res = await getFromApi("http://localhost:3000/widgets/690cca303f1b5a363ce6b422/fetch")
-      console.log(res)
-      if(res[0] == true){
-        res = res[1].weather
-      }
-      const result = await res.json();
-
-      if (result.redirect) {
-        // Redirect when clicking
-        window.location.href = result.redirect;
-        return;
-      }
-
-      setData(result);
-    } catch (err) {
-      console.error("Error while fetching widget:", widget.name, err);
-      setData({ error: "Cannot load widget" });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div
-      onClick={fetchWidgetData}
-      className="cursor-pointer bg-gray-800/60 border border-white/10 rounded-lg p-3 hover:bg-gray-700/60 transition"
-    >
-      <h4 className="font-semibold text-sm mb-2">{widget.name}</h4>
-      <img src={widget.icon} alt={widget.name} className="w-12 h-12 rounded" />
-      <p className="text-xs text-gray-400 mb-2">{widget.description}</p>
-
-      {/* display content */}
-      <div className="text-sm bg-gray-900/40 p-2 rounded">
-        {isLoading ? (
-          <p className="text-gray-400 italic">Loading...</p>
-        ) : data ? (
-          data.error ? (
-            <p className="text-red-400">{data.error}</p>
-          ) : (
-            <pre className="whitespace-pre-wrap text-xs">
-              {typeof data === "string" ? data : JSON.stringify(data, null, 2)}
-            </pre>
-          )
-        ) : (
-          <p className="text-gray-400 italic">Click here to display</p>
-        )}
-      </div>
-    </div>
-  );
-};

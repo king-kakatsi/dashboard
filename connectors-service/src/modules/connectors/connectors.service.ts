@@ -82,6 +82,30 @@ export class ConnectorsService {
   }
 
   async findByUser(userId: string): Promise<Connector[]> {
-    return this.connectorModel.find({ userIds: { $in: [userId] } }).exec();
+    return this.connectorModel
+      .find({ userIds: { $in: [userId] } })
+      .exec();
+    }
+
+    async activateForUser(connectorId: string, userId: string): Promise<Connector> {
+  const connector = await this.connectorModel.findById(connectorId);
+  if (!connector) throw new NotFoundException('Connector not found');
+
+  if (!connector.userIds.includes(userId)) {
+    connector.userIds.push(userId);
+    await connector.save();
+  }
+  
+  return connector;
+}
+
+  async deactivateForUser(connectorId: string, userId: string): Promise<Connector> {
+    const connector = await this.connectorModel.findById(connectorId);
+    if (!connector) throw new NotFoundException('Connector not found');
+
+    connector.userIds = connector.userIds.filter(id => id !== userId);
+    await connector.save();
+    
+    return connector;
   }
 }
