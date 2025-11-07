@@ -110,12 +110,12 @@ const ServicesTab = ({ services }) => {
             <div className="flex justify-between items-start">
               <div className="flex-1">
                 <h3 className="font-bold text-lg text-gray-900">
-                  {connector.name || 'Service'}
+                  {connector.title || 'Service'}
                 </h3>
-                <p className="text-sm text-gray-600 mt-1">
+                {/* <p className="text-sm text-gray-600 mt-1">
                   <i className="fas fa-tag mr-2"></i>
                   {connector.category || 'Category'}
-                </p>
+                </p> */}
                 {connector.description && (
                   <p className="text-sm text-gray-600 mt-2">
                     {connector.description}
