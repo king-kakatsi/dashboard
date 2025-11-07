@@ -157,8 +157,13 @@ const WidgetCard = ({ widget, app }) => {
       //   credentials: "include",
       // });
 
-      const res = getFromApi(`http://localhost:3000/widgets/${widget._id}/fetch`)
+      // const res = getFromApi(`http://localhost:3000/widgets/${widget._id}/fetch`)
 
+      let res = await getFromApi("http://localhost:3000/widgets/690cca303f1b5a363ce6b422/fetch")
+      console.log(res)
+      if(res[0] == true){
+        res = res[1].weather
+      }
       const result = await res.json();
 
       if (result.redirect) {
