@@ -4,6 +4,7 @@ import { getConnectors, getWidgetsByService } from "../services/apiService";
 import BackImage from "/src/assets/bg.jpg";
 import { Navigate } from "react-router-dom";
 import { getUserDashboard } from "../controllers/userController";
+import { getFromApi } from "../services/axiosService";
 
 export default function Dashboard() {
   const [connectors, setConnectors] = useState([]);
@@ -151,10 +152,12 @@ const WidgetCard = ({ widget, app }) => {
     )}&endpoint=${encodeURIComponent(widget.endpoint)}`;
 
     try {
-      const res = await fetch(proxyUrl, {
-        method: "GET",
-        credentials: "include",
-      });
+      // const res = await fetch(proxyUrl, {
+      //   method: "GET",
+      //   credentials: "include",
+      // });
+
+      const res = getFromApi(`http://localhost:3000/widgets/${widget._id}/fetch`)
 
       const result = await res.json();
 
