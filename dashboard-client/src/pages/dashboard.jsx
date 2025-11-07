@@ -122,37 +122,40 @@ const Window = ({ app, onClose, zIndex }) => {
 
 const WidgetCard = ({ widget, app }) => {
   const [data, setData] = useState(null);
-  // function to get widget data
+  const [isLoading, setLoading] = useState(false);
+
   const fetchWidgetData = async () => {
-    // console.log(app.baseUrl + widget.endpoint);
-    const fullUrl = `${app.baseUrl}${widget.endpoint}`;
-    console.log(fullUrl);
+    setLoading(true);
+    const proxyUrl = `http://localhost:3000/proxy?baseUrl=${encodeURIComponent(app.baseUrl)}&endpoint=${encodeURIComponent(widget.endpoint)}`;
+
     try {
-      const res = await fetch(fullUrl, {
+      const res = await fetch(proxyUrl, {
         method: "GET",
         credentials: "include",
       });
-      
-      if (!res.ok) {
-        throw new Error(`Error: ${res.status}`);
-      }
+
       const result = await res.json();
+
+      if (result.redirect) {
+        // Redirect when clicking
+        window.location.href = result.redirect;
+        return;
+      }
+
       setData(result);
     } catch (err) {
       console.error("Error while fetching widget:", widget.name, err);
       setData({ error: "Cannot load widget" });
+    } finally {
+      setLoading(false);
     }
   };
 
-  // auto-refresh
-  useEffect(() => {
-    fetchWidgetData();
-    const interval = setInterval(fetchWidgetData, widget.refreshRate * 1000);
-    return () => clearInterval(interval);
-  }, [widget, app]);
-
   return (
-    <div className="bg-gray-800/60 border border-white/10 rounded-lg p-3">
+    <div
+      onClick={fetchWidgetData}
+      className="cursor-pointer bg-gray-800/60 border border-white/10 rounded-lg p-3 hover:bg-gray-700/60 transition"
+    >
       <h4 className="font-semibold text-sm mb-2">{widget.name}</h4>
       <img
         src={widget.icon}
@@ -163,18 +166,21 @@ const WidgetCard = ({ widget, app }) => {
 
       {/* display content */}
       <div className="text-sm bg-gray-900/40 p-2 rounded">
-        {data ? (
+        {isLoading ? (
+          <p className="text-gray-400 italic">Loading...</p>
+        ) : data ? (
           data.error ? (
             <p className="text-red-400">{data.error}</p>
           ) : (
             <pre className="whitespace-pre-wrap text-xs">
-              {JSON.stringify(data, null, 2)}
+              {typeof data === "string" ? data : JSON.stringify(data, null, 2)}
             </pre>
           )
         ) : (
-          <p className="text-gray-400 italic">Loading...</p>
+          <p className="text-gray-400 italic">Click here to display</p>
         )}
       </div>
     </div>
   );
 };
+
