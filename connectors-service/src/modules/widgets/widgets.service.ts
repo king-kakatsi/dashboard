@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Widget, WidgetDocument } from './schemas/widgets.schema';
@@ -11,7 +15,7 @@ export class WidgetsService {
   constructor(
     @InjectModel(Widget.name)
     private readonly widgetModel: Model<WidgetDocument>,
-  ) { }
+  ) {}
 
   async create(dto: CreateWidgetDto): Promise<Widget> {
     const widget = new this.widgetModel(dto);
@@ -47,7 +51,11 @@ export class WidgetsService {
   }
 
   // Mettre à jour la position d’un widget pour un utilisateur donné
-  async updateUserPosition(widgetId: string, userId: string, position: { x: number; y: number }) {
+  async updateUserPosition(
+    widgetId: string,
+    userId: string,
+    position: { x: number; y: number },
+  ) {
     const widget = await this.widgetModel.findById(widgetId);
     if (!widget) throw new NotFoundException('Widget not found');
 
@@ -82,61 +90,69 @@ export class WidgetsService {
     return this.widgetModel.find({ serviceId }).exec();
   }
 
-async fetchWidgetData(widgetId: string, additionalParams: Record<string, any> = {}): Promise<any> {
-  try {
-    // Get widget
-    const widget = await this.widgetModel
-      .findById(widgetId)
-      .populate('serviceId')
-      .exec();
+  async fetchWidgetData(
+    widgetId: string,
+    additionalParams: Record<string, any> = {},
+  ): Promise<any> {
+    try {
+      // Get widget
+      const widget = await this.widgetModel
+        .findById(widgetId)
+        .populate('serviceId')
+        .exec();
 
-    if (!widget) {
-      throw new NotFoundException('Widget not found');
-    }
+      if (!widget) {
+        throw new NotFoundException('Widget not found');
+      }
 
-    // Check if service exists
-    const connector = widget.serviceId as any;
-    if (!connector || !connector.baseUrl) {
-      throw new NotFoundException('Connector not found or invalid');
-    }
-    let fullUrl = `${connector.baseUrl}${widget.endpoint || ''}`;
+      // Check if service exists
+      const connector = widget.serviceId as any;
+      if (!connector || !connector.baseUrl) {
+        throw new NotFoundException('Connector not found or invalid');
+      }
+      let fullUrl = `${connector.baseUrl}${widget.endpoint || ''}`;
 
-    // add additional params 
-    if (Object.keys(additionalParams).length > 0) {
-      const params = new URLSearchParams(additionalParams as any);
-      const separator = fullUrl.includes('?') ? '&' : '?';
-      fullUrl = `${fullUrl}${separator}${params.toString()}`;
-    }
+      // add additional params
+      if (Object.keys(additionalParams).length > 0) {
+        const params = new URLSearchParams(additionalParams as any);
+        const separator = fullUrl.includes('?') ? '&' : '?';
+        fullUrl = `${fullUrl}${separator}${params.toString()}`;
+      }
 
-    // Send request to third party service
-    console.log('\n\n\n\n================ DEBUG - full api url', connector.baseUrl, widget.endpoint, fullUrl);
-    const response = await axios.get(fullUrl, {
-      timeout: 15000,
-    });
-    if (response.status === 200) {
-      return {
-        success: true,
-        data: response.data,
-        widget: {
-          id: widget._id,
-          name: widget.name,
-        },
-      };
-    }
+      // Send request to third party service
+      console.log(
+        '\n\n\n\n================ DEBUG - full api url',
+        connector.baseUrl,
+        widget.endpoint,
+        fullUrl,
+      );
+      const response = await axios.get(fullUrl, {
+        timeout: 15000,
+      });
+      if (response.status === 200) {
+        return {
+          success: true,
+          data: response.data,
+          widget: {
+            id: widget._id,
+            name: widget.name,
+          },
+        };
+      }
 
-    throw new InternalServerErrorException('Failed to fetch data from external API');
-  } catch (error) {
-    if (error instanceof NotFoundException) {
-      throw error;
+      throw new InternalServerErrorException(
+        'Failed to fetch data from external API',
+      );
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+
+      console.error('Error fetching widget data:', error.message);
+      throw new InternalServerErrorException(
+        error.response?.data?.message ||
+          'Error fetching data from external API',
+      );
     }
-    
-    console.error('Error fetching widget data:', error.message);
-    throw new InternalServerErrorException(
-      error.response?.data?.message || 'Error fetching data from external API',
-    );
   }
-}
-
-}
-
 }

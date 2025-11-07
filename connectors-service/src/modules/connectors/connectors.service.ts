@@ -82,9 +82,6 @@ export class ConnectorsService {
   }
 
   async findByUser(userId: string): Promise<Connector[]> {
-    return this.connectorModel
-      .find({ userIds: { $in: [userId] } })
-      .exec();
-    }
+    return this.connectorModel.find({ userIds: { $in: [userId] } }).exec();
+  }
 }
-

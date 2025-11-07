@@ -15,11 +15,11 @@ export class Connector {
   @Prop({ unique: true, required: true })
   icon: string;
 
-    @Prop({ unique: true })
-    baseUrl: string;
+  @Prop({ unique: true })
+  baseUrl: string;
 
-    @Prop({ unique: true })
-    userIds: string[];
+  @Prop({ unique: true })
+  userIds: string[];
 }
 
 export const ConnectorSchema = SchemaFactory.createForClass(Connector);
