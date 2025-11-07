@@ -1,24 +1,21 @@
 import React, { useEffect, useState } from "react";
 import { getConnectors, getWidgetsByService } from "../services/apiService";
-// import BackImage from "/src/assets/Image.jpeg";
-import BackImage from '/src/assets/Image.jpeg';
+import { getUserDashboard } from "../controllers/userController";
+import { getFromApi } from "../services/axiosService";
+
+import BackImage from "/src/assets/bg.jpg";
 import GithubStarsWidget from "../components/githubWidgets/Favori";
 import GithubReposWidget from "../components/githubWidgets/Repo";
-import BackImage from "/src/assets/bg.jpg";
-import { Navigate } from "react-router-dom";
-import { getUserDashboard } from "../controllers/userController";
 import SportsNewsWidget from "../components/news/FootNewsWidget";
-import { getFromApi } from "../services/axiosService";
 
 export default function Dashboard() {
   const [connectors, setConnectors] = useState([]);
   const [openApps, setOpenApps] = useState([]);
+  const [showGithubModal, setShowGithubModal] = useState(false); // modal GitHub
 
-  // fetch connectorsfrom api
   useEffect(() => {
     const fetchData = async () => {
       const connectorsData = await getConnectors();
-      // console.log(connectorsData);
       setConnectors(connectorsData);
     };
     fetchData();
@@ -27,17 +24,15 @@ export default function Dashboard() {
 
   const fetchUserDashboard = async () => {
     const result = await getUserDashboard();
-    setConnectors(result[1].connectors);
+    if (result && result[1]) setConnectors(result[1].connectors || []);
   };
 
-  // Open a window
   const openApp = (app) => {
     if (!openApps.find((a) => a.id === app.id)) {
       setOpenApps([...openApps, app]);
     }
   };
 
-  // close a window
   const closeApp = (id) => {
     setOpenApps(openApps.filter((a) => a.id !== id));
   };
@@ -45,49 +40,49 @@ export default function Dashboard() {
   return (
     <div
       className="relative min-h-screen bg-cover bg-center text-gray-100 font-sans overflow-hidden"
-      style={{
-        backgroundImage: `url(${BackImage})`,
-      }}
+      style={{ backgroundImage: `url(${BackImage})` }}
     >
-      {/* style={{
-  backgroundImage: "url('https://4kwallpapers.com/images/walls/thumbs_3t/1432.jpg')",
-}} */}
-
-      {/* connectors Dock */}
-      <div> <GithubReposWidget/><GithubStarsWidget/></div>
-      <div className="items-center justify-center m-10 ">
-        <a
-          href="/profile"
-          className="relative hover:scale-110 transition-transform"
-        >
+      {/* profile icon */}
+      <div className="items-center justify-center m-10">
+        <a href="/profile" className="relative hover:scale-110 transition-transform">
           <img
             src="https://freesvg.org/img/abstract-user-flat-4.png"
             alt="profile icon"
             className="w-12 h-12 rounded"
           />
-          <p className="text-xs text-white mt-1"></p>
         </a>
       </div>
+
+      {/* Dock en bas */}
       <footer className="fixed bottom-0 left-0 right-0 flex justify-center items-end z-40 h-28 p-3">
-        <div className="bg-black/40 backdrop-blur-xl p-3 rounded-2xl flex items-end space-x-3">
+        <div className="bg-black/40 backdrop-blur-xl p-3 rounded-2xl flex items-end space-x-4">
+          {/* Bouton GitHub modale */}
+          <button
+            onClick={() => setShowGithubModal(true)}
+            className="hover:scale-110 transition-transform"
+          >
+            <img
+              src="https://cdn-icons-png.flaticon.com/512/25/25231.png"
+              alt="GitHub"
+              className="w-12 h-12 rounded"
+            />
+            <p className="text-xs text-white mt-1 text-center">GitHub</p>
+          </button>
+
           {connectors.map((app) => (
             <button
               key={app._id || app.id}
               onClick={() => openApp(app)}
               className="relative hover:scale-110 transition-transform"
             >
-              <img
-                src={app.icon}
-                alt={app.title}
-                className="w-12 h-12 rounded"
-              />
+              <img src={app.icon} alt={app.title} className="w-12 h-12 rounded" />
               <p className="text-xs text-white mt-1">{app.title}</p>
             </button>
           ))}
         </div>
       </footer>
 
-      {/* opened windows */}
+      {/* Fenêtres ouvertes */}
       {openApps.map((app, index) => (
         <Window
           key={app._id || app.id || index}
@@ -96,18 +91,36 @@ export default function Dashboard() {
           zIndex={50 + index}
         />
       ))}
+
+      {/* Modal GitHub */}
+      {showGithubModal && (
+        <div className="fixed inset-0 bg-black/70 flex justify-center items-center z-50">
+          <div className="bg-gray-900/90 p-6 rounded-2xl w-[90%] max-w-3xl relative">
+            <button
+              onClick={() => setShowGithubModal(false)}
+              className="absolute top-3 right-4 text-red-400 hover:text-red-500 text-xl"
+            >
+              ✕
+            </button>
+            <h2 className="text-lg font-bold mb-4 text-center text-white">GitHub Widgets</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <GithubReposWidget />
+              <GithubStarsWidget />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-//window component
+// Fenêtre d’application (dock)
 const Window = ({ app, onClose, zIndex }) => {
-  //fetch widgets from api
   const [widgets, setWidgets] = useState([]);
+
   useEffect(() => {
     const fetchWidgets = async () => {
       const data = await getWidgetsByService(app._id);
-      console.log('DEBUG - data', data);
       setWidgets(data);
     };
     fetchWidgets();
@@ -128,19 +141,17 @@ const Window = ({ app, onClose, zIndex }) => {
         </button>
       </div>
       <div className="p-4 text-gray-200">
-        <p>{app.description || "No descripton availble for this connector."}</p>
-        {/* Widgets*/}
+        <p>{app.description || "No description available."}</p>
         <div className="mt-4">
           <h3 className="text-sm font-semibold mb-2">Available widgets:</h3>
           {widgets.length > 0 ? (
             <div className="space-y-3">
               {widgets?.map((widget) => (
-                
-                <WidgetCard key={widget._id} widget={widget} app={app}/>
+                <WidgetCard key={widget._id} widget={widget} app={app} />
               ))}
             </div>
           ) : (
-            <p className="text-sm text-gray-400 italic">No widgets availble.</p>
+            <p className="text-sm text-gray-400 italic">No widgets available.</p>
           )}
         </div>
       </div>
@@ -148,48 +159,23 @@ const Window = ({ app, onClose, zIndex }) => {
   );
 };
 
+// Widget générique
 const WidgetCard = ({ widget, app }) => {
-
   const [data, setData] = useState(null);
+  const [isLoading, setLoading] = useState(false);
 
-  console.log('DEBUG - widget card', widget);
-  if (widget?.name === 'Sports News'){
+  if (widget?.name === "Sports News") {
     return <SportsNewsWidget widget={widget} app={app} />;
   }
 
-  // function to get widget data
-  const [isLoading, setLoading] = useState(false);
-
   const fetchWidgetData = async () => {
     setLoading(true);
-    const proxyUrl = `http://localhost:3000/proxy?baseUrl=${encodeURIComponent(
-      app.baseUrl
-    )}&endpoint=${encodeURIComponent(widget.endpoint)}`;
-
     try {
-      // const res = await fetch(proxyUrl, {
-      //   method: "GET",
-      //   credentials: "include",
-      // });
-
-      // const res = getFromApi(`http://localhost:3000/widgets/${widget._id}/fetch`)
-
-      let res = await getFromApi("http://localhost:3000/widgets/690cca303f1b5a363ce6b422/fetch")
-      console.log(res)
-      if(res[0] == true){
-        res = res[1].weather
-      }
+      let res = await getFromApi(`http://localhost:3000/widgets/${widget._id}/fetch`);
       const result = await res.json();
-
-      if (result.redirect) {
-        // Redirect when clicking
-        window.location.href = result.redirect;
-        return;
-      }
-
       setData(result);
     } catch (err) {
-      console.error("Error while fetching widget:", widget.name, err);
+      console.error("Error fetching widget:", err);
       setData({ error: "Cannot load widget" });
     } finally {
       setLoading(false);
@@ -204,8 +190,6 @@ const WidgetCard = ({ widget, app }) => {
       <h4 className="font-semibold text-sm mb-2">{widget.name}</h4>
       <img src={widget.icon} alt={widget.name} className="w-12 h-12 rounded" />
       <p className="text-xs text-gray-400 mb-2">{widget.description}</p>
-
-      {/* display content */}
       <div className="text-sm bg-gray-900/40 p-2 rounded">
         {isLoading ? (
           <p className="text-gray-400 italic">Loading...</p>
@@ -218,7 +202,7 @@ const WidgetCard = ({ widget, app }) => {
             </pre>
           )
         ) : (
-          <p className="text-gray-400 italic">Click here to display</p>
+          <p className="text-gray-400 italic">Click to load</p>
         )}
       </div>
     </div>

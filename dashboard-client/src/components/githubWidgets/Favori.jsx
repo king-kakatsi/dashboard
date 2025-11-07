@@ -1,48 +1,96 @@
-import React, { useState } from "react";
-import { getUserStars } from "../../controllers/githubController";
+import React, { useEffect, useState } from "react";
+import { getUserStars } from "../../controllers/githubController.js";
 
-export default function Favoris() {
-  const [username, setUsername] = useState("");
+const GithubStarsWidget = ({ refreshRate = 90 }) => {
   const [stars, setStars] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [username, setUsername] = useState(""); 
+  const [inputValue, setInputValue] = useState("");
+  const [submittedUsernames, setSubmittedUsernames] = useState([]);
 
-  const fetchStars = async () => {
+  const loadStars = async (user) => {
+    if (!user) return;
     setLoading(true);
-    const data = await getUserStars(username);
+    const data = await getUserStars(user);
     setStars(data);
     setLoading(false);
   };
 
+  useEffect(() => {
+    if (!username) return;
+
+    loadStars(username);
+    const interval = setInterval(() => loadStars(username), refreshRate * 1000);
+    return () => clearInterval(interval);
+  }, [username, refreshRate]);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const trimmed = inputValue.trim();
+    if (!trimmed) return;
+
+    setUsername(trimmed);
+    setSubmittedUsernames((prev) => [trimmed, ...prev.filter(u => u !== trimmed)]);
+    setInputValue("");
+  };
+
   return (
-    <div className="p-4 bg-gray-800 text-white rounded-md w-96">
-      <h2 className="text-lg font-bold mb-2">GitHub Starred Repos</h2>
-      <input
-        type="text"
-        placeholder="Nom d'utilisateur GitHub"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-        className="w-full p-2 rounded mb-2 text-black"
-      />
-      <button
-        onClick={fetchStars}
-        className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded mb-4"
-      >
-        Rechercher
-      </button>
+    <div className="bg-black/60 p-4 rounded-lg text-white w-80">
+      <h3 className="text-lg font-semibold mb-2">Favoris GitHub</h3>
 
-      {loading && <p>Chargement...</p>}
+      {/* Input toujours visible */}
+      <form onSubmit={handleSubmit} className="mb-3">
+        <input
+          type="text"
+          placeholder="Entrez votre GitHub username"
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          className="w-full p-2 rounded text-white"
+        />
+        <button
+          type="submit"
+          className="mt-2 w-full bg-blue-600 hover:bg-blue-700 p-2 rounded"
+        >
+          Valider
+        </button>
+      </form>
 
-      {stars.length > 0 && (
-        <ul className="space-y-1 max-h-64 overflow-y-auto">
-          {stars.map((repo) => (
-            <li key={repo.id} className="border-b border-gray-600 py-1">
-              <a href={repo.html_url} target="_blank" rel="noopener noreferrer">
-                {repo.full_name}
-              </a>
-            </li>
+      {/* Historique des usernames soumis */}
+      {submittedUsernames.length > 0 && (
+        <div className="mb-3 text-sm text-green-400">
+          {submittedUsernames.map((user, idx) => (
+            <p key={idx}>
+              Username pris en compte : <strong>{username}</strong>
+            </p>
           ))}
-        </ul>
+        </div>
+      )}
+
+      {/* Affichage des repos favoris pour le username courant */}
+      {username && (
+        <>
+          {loading ? (
+            <p>Chargement...</p>
+          ) : (
+            <ul className="space-y-2">
+              {stars.slice(0, 5).map((repo) => (
+                <li key={repo.id}>
+                  <a
+                    href={repo.html_url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="hover:underline"
+                  >
+                    {repo.name}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
+        </>
       )}
     </div>
   );
-}
+};
+
+export default GithubStarsWidget;
