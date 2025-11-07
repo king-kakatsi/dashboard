@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { getConnectors, getWidgetsByService } from "../services/apiService";
 // import BackImage from "/src/assets/Image.jpeg";
 import BackImage from '/src/assets/Image.jpeg';
+import GithubStarsWidget from "../components/githubWidgets/Favori";
+import GithubReposWidget from "../components/githubWidgets/Repo";
 
 export default function Dashboard() {
   const [connectors, setConnectors] = useState([]);
@@ -41,6 +43,7 @@ export default function Dashboard() {
 }} */}
 
       {/* connectors Dock */}
+      <div> <GithubReposWidget/><GithubStarsWidget/></div>
       <footer className="fixed bottom-0 left-0 right-0 flex justify-center items-end z-40 h-28 p-3">
         <div className="bg-black/40 backdrop-blur-xl p-3 rounded-2xl flex items-end space-x-3">
           {connectors.map((app) => (
