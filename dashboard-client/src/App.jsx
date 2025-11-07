@@ -6,6 +6,8 @@ import Register from "./pages/auth/Register";
 import Profile from "./pages/user/Profile";
 import EditProfile from "./pages/user/EditProfile";
 import ChangePassword from "./pages/user/ChangePassword";
+import GithubReposWidget from "./components/githubWidgets/Repo";
+import GithubStarsWidget from "./components/githubWidgets/Favori";
 import ConfirmUpdate from "./pages/user/ConfirmUpdate";
 import { AuthCallback } from "./pages/auth/AuthCallback";
 
@@ -20,11 +22,14 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/edit-profile" element={<EditProfile />} />
         <Route path="/change-password" element={<ChangePassword />} />
+        <Route path="/github" element={<GithubReposWidget/>} />
+        <Route path="/githstar" element={<GithubStarsWidget/>} />
         <Route path="/confirm-update/:userId" element={<ConfirmUpdate />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
       </Routes>
     </>
   )
 }
+
 
 export default App
