@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Widget, WidgetDocument } from './schemas/widgets.schema';
@@ -11,7 +15,7 @@ export class WidgetsService {
   constructor(
     @InjectModel(Widget.name)
     private readonly widgetModel: Model<WidgetDocument>,
-  ) { }
+  ) {}
 
   async create(dto: CreateWidgetDto): Promise<Widget> {
     const widget = new this.widgetModel(dto);
@@ -47,7 +51,11 @@ export class WidgetsService {
   }
 
   // Mettre à jour la position d’un widget pour un utilisateur donné
-  async updateUserPosition(widgetId: string, userId: string, position: { x: number; y: number }) {
+  async updateUserPosition(
+    widgetId: string,
+    userId: string,
+    position: { x: number; y: number },
+  ) {
     const widget = await this.widgetModel.findById(widgetId);
     if (!widget) throw new NotFoundException('Widget not found');
 
@@ -151,11 +159,6 @@ async fetchWidgetData(widgetId: string, additionalParams: Record<string, any> = 
     if (error instanceof NotFoundException) {
       throw error;
     }
-    
-    console.error('Error fetching widget data:', error.message);
-    throw new InternalServerErrorException(
-      error.response?.data?.message || 'Error fetching data from external API',
-    );
   }
 }
 

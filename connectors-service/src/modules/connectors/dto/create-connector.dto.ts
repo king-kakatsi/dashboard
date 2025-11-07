@@ -1,4 +1,10 @@
-import { IsArray, IsNotEmpty, IsOptional, IsString, IsUrl } from 'class-validator';
+import {
+  IsArray,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUrl,
+} from 'class-validator';
 
 export class CreateConnectorDto {
   @IsString()
@@ -13,11 +19,11 @@ export class CreateConnectorDto {
   @IsUrl()
   icon: string;
 
-    @IsNotEmpty()
-    @IsUrl()
-    baseUrl: string;
+  @IsNotEmpty()
+  @IsUrl()
+  baseUrl: string;
 
-    @IsArray()
-    @IsOptional()
-    userIds?: string[];
+  @IsArray()
+  @IsOptional()
+  userIds?: string[];
 }

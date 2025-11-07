@@ -14,7 +14,7 @@ import { UpdateWidgetDto } from './dto/update-widgets.dto';
 
 @Controller('widgets')
 export class WidgetsController {
-  constructor(private readonly widgetsService: WidgetsService) { }
+  constructor(private readonly widgetsService: WidgetsService) {}
 
   @Post()
   create(@Body() dto: CreateWidgetDto) {
@@ -65,8 +65,8 @@ export class WidgetsController {
 
   @Get(':id/fetch')
   fetchWidgetData(
-  @Param('id') id: string,
-  @Query() queryParams: Record<string, any>,
+    @Param('id') id: string,
+    @Query() queryParams: Record<string, any>,
   ) {
     return this.widgetsService.fetchWidgetData(id, queryParams);
   }
