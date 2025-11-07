@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getUserDashboard, getUserProfile } from '../../controllers/userController';
@@ -6,7 +7,6 @@ import ProfileCard from '../../components/user/ProfileCard';
 import ProfileTabs from '../../components/user/ProfileTabs';
 import Alert from '../../components/Alert';
 import { fetchFromLocalStorage, saveInLocalStorage } from '../../services/localStorageService';
-import { getFromApi } from '../../services/axiosService';
 
 const Profile = () => {
   const { userId } = useParams();
@@ -23,9 +23,10 @@ const Profile = () => {
       const user = fetchFromLocalStorage('user');
       const result = await getUserDashboard();
       
-      const allWidgets = await getFromApi("http://localhost:3000/widgets");
-      const allConnectors = await getFromApi("http://localhost:3000/connectors");
-      console.log('DEBUG', allWidgets, allConnectors);
+      if (!access_token) {
+        navigate('/login');
+        return;
+      }
 
       if (user && result[0]){
         user.connectors = result[1].connectors;
@@ -33,10 +34,6 @@ const Profile = () => {
         saveInLocalStorage('user', user);
       }
       
-      if (!access_token) {
-        navigate('/login');
-        return;
-      }
       const id = user?.id;
       
       const [isSuccess, data] = await getUserProfile(id);
@@ -85,3 +82,4 @@ const Profile = () => {
 };
 
 export default Profile;
+

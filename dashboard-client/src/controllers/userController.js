@@ -114,7 +114,3 @@ export async function getUserDashboard(){
     return result;
 }
 
-
-export async function getAllWidgets() {
-    const result = await getFromApi('widgets');
-}
