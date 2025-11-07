@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { getConnectors, getWidgetsByService } from "../services/apiService";
 // import BackImage from "/src/assets/Image.jpeg";
-import BackImage from '/src/assets/Image.jpeg';
+import BackImage from "/src/assets/bg.jpg";
 import { Navigate } from "react-router-dom";
 import { getUserDashboard } from "../controllers/userController";
 
@@ -11,21 +11,19 @@ export default function Dashboard() {
 
   // fetch connectorsfrom api
   useEffect(() => {
-    // const fetchData = async () => {
-    //   const connectorsData = await getConnectors();
-    //   // console.log(data);
-    //   setConnectors(connectorsData);
-    // };
-    // fetchData();
+    const fetchData = async () => {
+      const connectorsData = await getConnectors();
+      // console.log(connectorsData);
+      setConnectors(connectorsData);
+    };
+    fetchData();
     fetchUserDashboard();
   }, []);
 
-
-  const fetchUserDashboard = async () =>{
+  const fetchUserDashboard = async () => {
     const result = await getUserDashboard();
     setConnectors(result[1].connectors);
-  }
-
+  };
 
   // Open a window
   const openApp = (app) => {
@@ -41,7 +39,7 @@ export default function Dashboard() {
 
   return (
     <div
-      className="relative min-h-screen bg-contain bg-center text-gray-100 font-sans"
+      className="relative min-h-screen bg-cover bg-center text-gray-100 font-sans overflow-hidden"
       style={{
         backgroundImage: `url(${BackImage})`,
       }}
@@ -51,20 +49,21 @@ export default function Dashboard() {
 }} */}
 
       {/* connectors Dock */}
+      <div className="items-center justify-center m-10 ">
+        <a
+          href="/profile"
+          className="relative hover:scale-110 transition-transform"
+        >
+          <img
+            src="https://freesvg.org/img/abstract-user-flat-4.png"
+            alt="profile icon"
+            className="w-12 h-12 rounded"
+          />
+          <p className="text-xs text-white mt-1"></p>
+        </a>
+      </div>
       <footer className="fixed bottom-0 left-0 right-0 flex justify-center items-end z-40 h-28 p-3">
         <div className="bg-black/40 backdrop-blur-xl p-3 rounded-2xl flex items-end space-x-3">
-          <a
-              href="/profile"
-              className="relative hover:scale-110 transition-transform"
-            >
-              <img
-                src="https://freesvg.org/img/abstract-user-flat-4.png"
-                alt="profile icon"
-                className="w-12 h-12 rounded"
-              />
-              <p className="text-xs text-white mt-1">profile</p>
-            </a>
-
           {connectors.map((app) => (
             <button
               key={app._id || app.id}
@@ -97,7 +96,6 @@ export default function Dashboard() {
 
 //window component
 const Window = ({ app, onClose, zIndex }) => {
-
   //fetch widgets from api
   const [widgets, setWidgets] = useState([]);
   useEffect(() => {
@@ -130,7 +128,7 @@ const Window = ({ app, onClose, zIndex }) => {
           {widgets.length > 0 ? (
             <div className="space-y-3">
               {widgets?.map((widget) => (
-                <WidgetCard key={widget._id} widget={widget} app={app}/>
+                <WidgetCard key={widget._id} widget={widget} app={app} />
               ))}
             </div>
           ) : (
@@ -148,7 +146,9 @@ const WidgetCard = ({ widget, app }) => {
 
   const fetchWidgetData = async () => {
     setLoading(true);
-    const proxyUrl = `http://localhost:3000/proxy?baseUrl=${encodeURIComponent(app.baseUrl)}&endpoint=${encodeURIComponent(widget.endpoint)}`;
+    const proxyUrl = `http://localhost:3000/proxy?baseUrl=${encodeURIComponent(
+      app.baseUrl
+    )}&endpoint=${encodeURIComponent(widget.endpoint)}`;
 
     try {
       const res = await fetch(proxyUrl, {
@@ -179,11 +179,7 @@ const WidgetCard = ({ widget, app }) => {
       className="cursor-pointer bg-gray-800/60 border border-white/10 rounded-lg p-3 hover:bg-gray-700/60 transition"
     >
       <h4 className="font-semibold text-sm mb-2">{widget.name}</h4>
-      <img
-        src={widget.icon}
-        alt={widget.name}
-        className="w-12 h-12 rounded"
-      />
+      <img src={widget.icon} alt={widget.name} className="w-12 h-12 rounded" />
       <p className="text-xs text-gray-400 mb-2">{widget.description}</p>
 
       {/* display content */}
@@ -205,4 +201,3 @@ const WidgetCard = ({ widget, app }) => {
     </div>
   );
 };
-

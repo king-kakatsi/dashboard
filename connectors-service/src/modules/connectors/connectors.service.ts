@@ -79,10 +79,12 @@ export class ConnectorsService {
     if (!deleted) {
       throw new NotFoundException(`Connector ${id} not found`);
     }
+  }
 
-    async findByUser(userId: string): Promise<Connector[]> {
+  async findByUser(userId: string): Promise<Connector[]> {
     return this.connectorModel
-        .find({ userIds: { $in: [userId] } })
-        .exec();
+      .find({ userIds: { $in: [userId] } })
+      .exec();
     }
 }
+
