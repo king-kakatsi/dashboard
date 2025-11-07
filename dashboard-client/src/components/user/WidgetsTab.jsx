@@ -6,9 +6,12 @@ const WidgetsTab = ({ widgets }) => {
   const [allWidgets, setAllWidgets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [processingIds, setProcessingIds] = useState(new Set());
-  const user = fetchFromLocalStorage('user');
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
+    const userData = fetchFromLocalStorage('user');
+    setUser(userData);
+    
     loadAllWidgets();
   }, []);
 
@@ -29,7 +32,7 @@ const WidgetsTab = ({ widgets }) => {
   };
 
   const handleToggleWidget = async (widgetId) => {
-    if (processingIds.has(widgetId)) return;
+    if (processingIds.has(widgetId) || !user || !user.id) return;
 
     setProcessingIds(prev => new Set(prev).add(widgetId));
     
@@ -54,6 +57,8 @@ const WidgetsTab = ({ widgets }) => {
           return widget;
         })
       );
+    } else {
+      await loadAllWidgets();
     }
 
     setProcessingIds(prev => {
@@ -67,6 +72,15 @@ const WidgetsTab = ({ widgets }) => {
     return (
       <div className="text-center py-12">
         <i className="fas fa-spinner fa-spin text-4xl text-gray-400"></i>
+      </div>
+    );
+  }
+
+  if (!user || !user.id) {
+    return (
+      <div className="text-center py-12">
+        <i className="fas fa-user-slash text-6xl text-gray-300 mb-4"></i>
+        <p className="text-gray-600 mb-4">User not found. Please log in.</p>
       </div>
     );
   }
