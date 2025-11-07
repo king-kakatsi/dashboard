@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { getAllWidgets, activateWidget, deactivateWidget } from '../../controllers/widgetController';
 import { fetchFromLocalStorage } from '../../services/localStorageService';
@@ -44,7 +43,17 @@ const WidgetsTab = ({ widgets }) => {
     }
 
     if (result[0]) {
-      await loadAllWidgets();
+      setAllWidgets(prevWidgets => 
+        prevWidgets.map(widget => {
+          if (widget._id === widgetId) {
+            const updatedUserIds = isActive
+              ? widget.userIds.filter(id => id !== user.id)
+              : [...(widget.userIds || []), user.id];
+            return { ...widget, userIds: updatedUserIds };
+          }
+          return widget;
+        })
+      );
     }
 
     setProcessingIds(prev => {

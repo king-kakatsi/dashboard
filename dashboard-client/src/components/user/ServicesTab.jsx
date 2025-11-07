@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { getAllConnectors, activateConnector, deactivateConnector } from '../../controllers/connectorController';
 import { fetchFromLocalStorage } from '../../services/localStorageService';
@@ -44,7 +43,17 @@ const ServicesTab = ({ services }) => {
     }
 
     if (result[0]) {
-      await loadAllConnectors();
+      setAllConnectors(prevConnectors => 
+        prevConnectors.map(conn => {
+          if (conn._id === connectorId) {
+            const updatedUserIds = isActive
+              ? conn.userIds.filter(id => id !== user.id)
+              : [...(conn.userIds || []), user.id];
+            return { ...conn, userIds: updatedUserIds };
+          }
+          return conn;
+        })
+      );
     }
 
     setProcessingIds(prev => {
