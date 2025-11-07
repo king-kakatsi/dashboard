@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConnectorsService } from './connectors.service';
+import { ProxyController } from './proxy.controller';
 import { ConnectorsController } from './connectors.controller';
 import { ConnectorSchema } from './schemas/connector.schema';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -9,6 +10,6 @@ import { MongooseModule } from '@nestjs/mongoose';
     MongooseModule.forFeature([{ name: 'Connector', schema: ConnectorSchema }]),
   ],
   providers: [ConnectorsService],
-  controllers: [ConnectorsController],
+  controllers: [ConnectorsController, ProxyController],
 })
-export class ConnectorsModule {}
+export class ConnectorsModule { }
