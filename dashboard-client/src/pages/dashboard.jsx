@@ -11,12 +11,12 @@ export default function Dashboard() {
 
   // fetch connectorsfrom api
   useEffect(() => {
-    const fetchData = async () => {
-      const connectorsData = await getConnectors();
-      // console.log(data);
-      setConnectors(connectorsData);
-    };
-    fetchData();
+    // const fetchData = async () => {
+    //   const connectorsData = await getConnectors();
+    //   // console.log(data);
+    //   setConnectors(connectorsData);
+    // };
+    // fetchData();
     fetchUserDashboard();
   }, []);
 

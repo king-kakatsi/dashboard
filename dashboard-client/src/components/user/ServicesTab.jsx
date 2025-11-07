@@ -7,13 +7,13 @@ const ServicesTab = ({ services }) => {
       <div className="text-center py-12">
         <i className="fas fa-cog text-6xl text-gray-300 mb-4"></i>
         <p className="text-gray-600 mb-4">No services configured yet</p>
-        <a 
+        {/* <a 
           href="/services" 
           style={{ backgroundColor: '#FF214F' }}
           className="inline-block px-6 py-3 text-white rounded-lg font-semibold hover:opacity-90 transition-all"
         >
           Browse Services
-        </a>
+        </a> */}
       </div>
     );
   }

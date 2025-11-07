@@ -6,13 +6,13 @@ const WidgetsTab = ({ widgets }) => {
       <div className="text-center py-12">
         <i className="fas fa-th text-6xl text-gray-300 mb-4"></i>
         <p className="text-gray-600 mb-4">No widgets added yet</p>
-        <a 
+        {/* <a 
           href="/widgets" 
           style={{ backgroundColor: '#FF214F' }}
           className="inline-block px-6 py-3 text-white rounded-lg font-semibold hover:opacity-90 transition-all"
         >
           Add Widgets
-        </a>
+        </a> */}
       </div>
     );
   }

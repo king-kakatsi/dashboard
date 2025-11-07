@@ -110,6 +110,6 @@ export async function getCurrentUser() {
 
 export async function getUserDashboard(){
     const result = await getFromApi('dashboard');
-    console.log("DEBUG - ge user dash from user controller", result);
+    // console.log("DEBUG - ge user dash from user controller", result);
     return result;
 }
