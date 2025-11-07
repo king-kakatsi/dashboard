@@ -10,20 +10,25 @@ export default function Dashboard() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const connectorsData = await getConnectors();
-      setConnectors(connectorsData);
+      const [success, connectorsData] = await getConnectors();
+      console.log("DEBUG", success, connectorsData);
+      if (success && Array.isArray(connectorsData)) {
+        setConnectors(connectorsData);
+      } else {
+        setConnectors([]);
+      }
     };
     fetchData();
   }, []);
 
   const openApp = (app) => {
-    if (!openApps.find((a) => a.id === app.id)) {
+    if (!openApps.find((a) => a._id === app._id)) {
       setOpenApps([...openApps, app]);
     }
   };
 
   const closeApp = (id) => {
-    setOpenApps(openApps.filter((a) => a.id !== id));
+    setOpenApps(openApps.filter((a) => a._id !== id));
   };
 
   return (
@@ -48,16 +53,16 @@ export default function Dashboard() {
         <div className="bg-black/40 backdrop-blur-xl p-3 rounded-2xl flex items-end space-x-3">
           {connectors.map((app) => (
             <button
-              key={app._id || app.id}
+              key={app._id}
               onClick={() => openApp(app)}
               className="relative hover:scale-110 transition-transform"
             >
               <img
                 src={app.icon}
-                alt={app.title}
+                alt={app.name}
                 className="w-12 h-12 rounded"
               />
-              <p className="text-xs text-white mt-1">{app.title}</p>
+              <p className="text-xs text-white mt-1">{app.name}</p>
             </button>
           ))}
         </div>
@@ -65,9 +70,9 @@ export default function Dashboard() {
 
       {openApps.map((app, index) => (
         <Window
-          key={app._id || app.id || index}
+          key={app._id}
           app={app}
-          onClose={() => closeApp(app.id)}
+          onClose={() => closeApp(app._id)}
           zIndex={50 + index}
         />
       ))}
@@ -77,32 +82,18 @@ export default function Dashboard() {
 
 const Window = ({ app, onClose, zIndex }) => {
   const [widgets, setWidgets] = useState([]);
-  const [weatherData, setWeatherData] = useState(null);
 
   useEffect(() => {
     const fetchWidgets = async () => {
-      const data = await getWidgetsByService(app._id);
-      setWidgets(data);
+      const [success, data] = await getWidgetsByService(app._id);
+      if (success && Array.isArray(data)) {
+        setWidgets(data);
+      } else {
+        setWidgets([]);
+      }
     };
     fetchWidgets();
   }, [app]);
-
-  // Récupère la météo automatiquement
-  useEffect(() => {
-    const fetchWeather = async () => {
-      try {
-        let res = await getFromApi(
-          `http://localhost:3000/widgets/${widgets._id}/fetch`
-        );
-        if (res[0] === true) {
-          setWeatherData(res[1].weather);
-        }
-      } catch (err) {
-        console.error("Erreur météo :", err);
-      }
-    };
-    fetchWeather();
-  }, []);
 
   return (
     <div
@@ -110,7 +101,7 @@ const Window = ({ app, onClose, zIndex }) => {
       style={{ zIndex }}
     >
       <div className="flex justify-between items-center bg-gray-800/60 px-3 py-1.5 rounded-t-xl cursor-pointer">
-        <span className="font-medium">{app.title}</span>
+        <span className="font-medium">{app.name}</span>
         <button
           onClick={onClose}
           className="text-red-400 hover:text-red-500 text-xl leading-none cursor-pointer"
@@ -121,7 +112,6 @@ const Window = ({ app, onClose, zIndex }) => {
       <div className="p-4 text-gray-200">
         <p>{app.description || "No description available for this connector."}</p>
 
-        {/* Widgets */}
         <div className="mt-4">
           <h3 className="text-sm font-semibold mb-2">Available widgets:</h3>
           {widgets.length > 0 ? (
@@ -134,14 +124,6 @@ const Window = ({ app, onClose, zIndex }) => {
             <p className="text-sm text-gray-400 italic">No widgets available.</p>
           )}
         </div>
-
-        {/* Météo affichée */}
-        {weatherData && (
-          <div className="mt-6">
-            <h3 className="text-sm font-semibold mb-2">Weather</h3>
-            <WeatherCard weather={weatherData} />
-          </div>
-        )}
       </div>
     </div>
   );
@@ -155,16 +137,19 @@ const WidgetCard = ({ widget }) => {
   const fetchWidgetData = async () => {
     setLoading(true);
     try {
-      let res = await getFromApi(
-        `http://localhost:3000/widgets/${widget._id}/fetch`
+      const [success, response] = await getFromApi(
+        `widgets/${widget._id}/fetch`
       );
-      console.log(res);
-      if (res[0] === true && res[1].data) {
-       setWeather(res[1].data);
-       console.log(res.data.c)
-
+      console.log("Widget response:", success, response);
+      
+      if (success && response.data) {
+        if (response.data.weather || response.data.main) {
+          setWeather(response.data);
+        } else {
+          setData(response.data);
+        }
       } else {
-        setData(res);
+        setData({ error: "Failed to load data" });
       }
     } catch (err) {
       console.error("Error while fetching widget:", widget.name, err);
@@ -179,8 +164,10 @@ const WidgetCard = ({ widget }) => {
       onClick={fetchWidgetData}
       className="cursor-pointer bg-gray-800/60 border border-white/10 rounded-lg p-3 hover:bg-gray-700/60 transition"
     >
-      <h4 className="font-semibold text-sm mb-2">{widget.name}</h4>
-      <img src={widget.icon} alt={widget.name} className="w-12 h-12 rounded" />
+      <div className="flex items-center justify-between mb-2">
+        <h4 className="font-semibold text-sm">{widget.name}</h4>
+        <img src={widget.icon} alt={widget.name} className="w-8 h-8 rounded" />
+      </div>
       <p className="text-xs text-gray-400 mb-2">{widget.description}</p>
 
       {isLoading ? (
@@ -194,7 +181,7 @@ const WidgetCard = ({ widget }) => {
           {data.error ? (
             <p className="text-red-400">{data.error}</p>
           ) : (
-            <pre className="whitespace-pre-wrap text-xs">
+            <pre className="whitespace-pre-wrap text-xs overflow-auto max-h-48">
               {typeof data === "string"
                 ? data
                 : JSON.stringify(data, null, 2)}
@@ -218,12 +205,12 @@ const WeatherCard = ({ weather }) => {
   const wind = weather.wind || {};
 
   return (
-    <div className="bg-gradient-to-br from-white-500/30 to-indigo-700/30 rounded-xl p-4 text-white shadow-lg backdrop-blur-md mt-3">
+    <div className="bg-gradient-to-br from-blue-500/30 to-indigo-700/30 rounded-xl p-4 text-white shadow-lg backdrop-blur-md mt-3">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-lg font-bold">Météo locale</h2>
+          <h2 className="text-lg font-bold">Local Weather</h2>
           <p className="capitalize text-gray-200 text-sm">
-            {condition?.description || "Aucune description"}
+            {condition?.description || "No description"}
           </p>
         </div>
         {condition?.icon && (
@@ -240,17 +227,17 @@ const WeatherCard = ({ weather }) => {
           <span className="text-3xl font-bold">
             {main.temp ? Math.round(main.temp) : "--"}°C
           </span>
-          <span className="text-xs text-gray-300">Température</span>
+          <span className="text-xs text-gray-300">Temperature</span>
         </div>
         <div className="flex flex-col items-center">
           <span className="text-lg">{main.humidity ?? "--"}%</span>
-          <span className="text-xs text-gray-300">Humidité</span>
+          <span className="text-xs text-gray-300">Humidity</span>
         </div>
         <div className="flex flex-col items-center">
           <span className="text-lg">
             {wind.speed ? Math.round(wind.speed) : "--"} m/s
           </span>
-          <span className="text-xs text-gray-300">Vent</span>
+          <span className="text-xs text-gray-300">Wind</span>
         </div>
       </div>
     </div>
