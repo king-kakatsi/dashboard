@@ -82,6 +82,28 @@ export class WidgetsService {
     return this.widgetModel.find({ serviceId }).exec();
   }
 
+  async activateForUser(widgetId: string, userId: string): Promise<Widget> {
+  const widget = await this.widgetModel.findById(widgetId);
+  if (!widget) throw new NotFoundException('Widget not found');
+
+  if (!widget.userIds.includes(userId)) {
+    widget.userIds.push(userId);
+    await widget.save();
+  }
+  
+  return widget;
+}
+
+async deactivateForUser(widgetId: string, userId: string): Promise<Widget> {
+  const widget = await this.widgetModel.findById(widgetId);
+  if (!widget) throw new NotFoundException('Widget not found');
+
+  widget.userIds = widget.userIds.filter(id => id !== userId);
+  await widget.save();
+  
+  return widget;
+}
+
 async fetchWidgetData(widgetId: string, additionalParams: Record<string, any> = {}): Promise<any> {
   try {
     // Get widget
@@ -139,4 +161,3 @@ async fetchWidgetData(widgetId: string, additionalParams: Record<string, any> = 
 
 }
 
-}

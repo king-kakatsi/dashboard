@@ -113,3 +113,8 @@ export async function getUserDashboard(){
     // console.log("DEBUG - ge user dash from user controller", result);
     return result;
 }
+
+
+export async function getAllWidgets() {
+    const result = await getFromApi('widgets');
+}

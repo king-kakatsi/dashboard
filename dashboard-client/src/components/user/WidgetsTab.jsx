@@ -1,6 +1,12 @@
 import React from 'react';
+import { getAllWidgets } from '../../controllers/userController';
 
-const WidgetsTab = ({ widgets }) => {
+const WidgetsTab = async ({ widgets }) => {
+
+  const allWidgets = await getAllWidgets();
+  console.log('DEBUG - from widget tab', allWidgets);
+
+
   if (!widgets || widgets.length === 0) {
     return (
       <div className="text-center py-12">

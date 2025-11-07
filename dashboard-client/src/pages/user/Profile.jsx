@@ -6,6 +6,7 @@ import ProfileCard from '../../components/user/ProfileCard';
 import ProfileTabs from '../../components/user/ProfileTabs';
 import Alert from '../../components/Alert';
 import { fetchFromLocalStorage, saveInLocalStorage } from '../../services/localStorageService';
+import { getFromApi } from '../../services/axiosService';
 
 const Profile = () => {
   const { userId } = useParams();
@@ -21,18 +22,23 @@ const Profile = () => {
       const access_token = fetchFromLocalStorage('access_token');
       const user = fetchFromLocalStorage('user');
       const result = await getUserDashboard();
+      
+      const allWidgets = await getFromApi("http://localhost:3000/widgets");
+      const allConnectors = await getFromApi("http://localhost:3000/connectors");
+      console.log('DEBUG', allWidgets, allConnectors);
+
       if (user && result[0]){
         user.connectors = result[1].connectors;
         user.widgets = result[1].widgets;
         saveInLocalStorage('user', user);
       }
-      const id = user?.id;
       
       if (!access_token) {
         navigate('/login');
         return;
       }
-
+      const id = user?.id;
+      
       const [isSuccess, data] = await getUserProfile(id);
       
       if (isSuccess) {

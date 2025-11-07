@@ -48,4 +48,20 @@ export class ConnectorsController {
   findByUser(@Param('userId') userId: string) {
     return this.connectorsService.findByUser(userId);
   }
+
+  @Post(':id/activate/:userId')
+  activateForUser(
+    @Param('id') connectorId: string,
+    @Param('userId') userId: string,
+  ) {
+    return this.connectorsService.activateForUser(connectorId, userId);
+  }
+
+  @Delete(':id/deactivate/:userId')
+  deactivateForUser(
+    @Param('id') connectorId: string,
+    @Param('userId') userId: string,
+  ) {
+    return this.connectorsService.deactivateForUser(connectorId, userId);
+  }
 }
