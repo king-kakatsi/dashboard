@@ -1,5 +1,6 @@
+
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { getUserProfile, updateUserProfile } from '../../controllers/userController';
 import Navigation from '../../components/user/Nav';
 import Alert from '../../components/Alert';
@@ -8,8 +9,10 @@ import { fetchFromLocalStorage } from '../../services/localStorageService';
 const EditProfile = () => {
   const { userId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [user, setUser] = useState(null);
   const [errors, setErrors] = useState(null);
+  const [success, setSuccess] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   
@@ -22,8 +25,8 @@ const EditProfile = () => {
     const loadProfile = async () => {
       setLoading(true);
       const access_token = fetchFromLocalStorage('access_token');
-      const user = fetchFromLocalStorage('user');
-      const id = user?.id;
+      const storedUser = fetchFromLocalStorage('user');
+      const id = storedUser?.id;
       
       if (!access_token) {
         navigate('/login');
@@ -45,7 +48,12 @@ const EditProfile = () => {
     };
     
     loadProfile();
-  }, [userId, navigate]);
+
+    if (location.state?.success) {
+      setSuccess(location.state.success);
+      window.history.replaceState({}, document.title);
+    }
+  }, [userId, navigate, location]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -59,16 +67,35 @@ const EditProfile = () => {
     e.preventDefault();
     setSubmitting(true);
     setErrors(null);
+    setSuccess(null);
 
-    const user = fetchFromLocalStorage('user');
-    const [isSuccess, data] = await updateUserProfile(user?.id, formData);
+    const storedUser = fetchFromLocalStorage('user');
+    const updatePayload = {};
+    
+    if (formData.username !== user.username) {
+      updatePayload.standByUsername = formData.username;
+    }
+    
+    if (formData.email !== user.email) {
+      updatePayload.standByEmail = formData.email;
+    }
+
+    if (Object.keys(updatePayload).length === 0) {
+      setErrors({ message: 'No changes detected' });
+      setSubmitting(false);
+      return;
+    }
+
+    const [isSuccess, data] = await updateUserProfile(storedUser?.id, updatePayload);
 
     if (isSuccess) {
-      navigate('/edit-profile', { 
-        state: { success: { message: 'Profile updated successfully!' } } 
+      setSuccess({ 
+        message: data?.message || 'Confirmation email sent! Please check your inbox.' 
       });
+      setErrors(null);
     } else {
       setErrors({ message: data?.message || 'Failed to update profile' });
+      setSuccess(null);
     }
     setSubmitting(false);
   };
@@ -96,11 +123,14 @@ const EditProfile = () => {
           </div>
 
           <Alert type="error" message={errors?.message} />
+          <Alert type="success" message={success?.message} />
 
           <form onSubmit={handleSubmit}>
             
             <div className="mb-5">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Username</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Username
+              </label>
               <input 
                 type="text" 
                 name="username" 
@@ -111,10 +141,18 @@ const EditProfile = () => {
                 minLength="3"
                 className="w-full text-gray-600 px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
               />
+              {user?.standByUsername && (
+                <p className="mt-1 text-sm text-amber-600">
+                  <i className="fas fa-clock mr-1"></i>
+                  Pending: <strong>{user.standByUsername}</strong>
+                </p>
+              )}
             </div>
-{/* 
+
             <div className="mb-5">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Email Address
+              </label>
               <input 
                 type="email" 
                 name="email" 
@@ -124,7 +162,13 @@ const EditProfile = () => {
                 required
                 className="w-full text-gray-600 px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
               />
-            </div> */}
+              {user?.standByEmail && (
+                <p className="mt-1 text-sm text-amber-600">
+                  <i className="fas fa-clock mr-1"></i>
+                  Pending: <strong>{user.standByEmail}</strong>
+                </p>
+              )}
+            </div> 
 
             <div className="flex gap-4">
               <button 

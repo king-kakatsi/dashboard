@@ -6,7 +6,7 @@ import {
   IsNumber,
   IsBoolean,
   IsNotEmpty,
-  IsUrl
+  IsUrl,
 } from 'class-validator';
 
 export class CreateWidgetDto {
@@ -16,7 +16,7 @@ export class CreateWidgetDto {
   //   userIds?: string[];
   @IsArray()
   @IsOptional()
-  userIds: string;
+  userIds?: string[];
 
   @IsString()
   serviceId: string;

@@ -67,10 +67,10 @@ export class GatewayService {
   // }
 
   getConnectors(userId?: string) {
-    if (!userId){
+    if (!userId) {
       return this.forwardRequest('get', '/connectors');
     }
-    return this.forwardRequest('get', '/connectors', userId);
+    return this.forwardRequest('get', '/connectors/user/' + userId);
   }
 
   getConnector(connectorId: string, userId: string) {
@@ -96,7 +96,7 @@ export class GatewayService {
 
   // ===== Widgets Methods =====
   getWidgets(userId?: string) {
-    return this.forwardRequest('get', '/widgets', userId);
+    return this.forwardRequest('get', '/widgets/user/' + userId);
   }
 
   getWidget(widgetId: string, userId: string) {
@@ -133,7 +133,7 @@ export class GatewayService {
         widgets,
       };
     } catch (error) {
-      console.log('================\nDEBUG - gateway.service > getUserDashboard: ' + error);
+      // console.log('================\nDEBUG - gateway.service > getUserDashboard: ' + error);
       this.logger.error('Failed to fetch dashboard data');
       throw new HttpException('Failed to fetch dashboard data', 500);
     }

@@ -20,4 +20,4 @@ import { GoogleController } from './google.controller';
   providers: [WidgetsService],
   exports: [WidgetsService],
 })
-export class WidgetsModule { }
+export class WidgetsModule {}

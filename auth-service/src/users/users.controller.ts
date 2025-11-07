@@ -18,7 +18,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 @Controller('users')
 @UseGuards(CustomAuthGuard)
 export class UsersController {
-  constructor(private readonly usersService: UsersService) { }
+  constructor(private readonly usersService: UsersService) {}
 
   // Get current user profile
   @Get('profile')
@@ -46,8 +46,15 @@ export class UsersController {
     @CurrentUser() user: any,
     @Body() updateUserDto: UpdateUserDto,
   ) {
-    console.log('DEBUG - users controller', user);
     return this.usersService.update(user.id, updateUserDto);
+  }
+
+  /**
+   * Confirm update (no auth needed, just user ID in URL)
+   */
+  @Get('confirm-update/:userId')
+  async confirmUpdate(@Param('userId') userId: string) {
+    return this.usersService.confirmUpdate(userId);
   }
 
   // Update any user (admin only)

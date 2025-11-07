@@ -1,36 +1,44 @@
 import {
   IsEmail,
-  IsNotEmpty,
   IsOptional,
   IsString,
-  MinLength,
+  IsBoolean,
   IsEnum,
+  IsArray,
 } from 'class-validator';
 import { UserRole } from '@prisma/client';
 
-export class CreateUserDto {
-  @IsEmail()
-  @IsNotEmpty()
-  email: string;
-
-  @IsString()
-  @IsNotEmpty()
-  @MinLength(3)
-  username: string;
-
-  @IsString()
-  @IsNotEmpty()
-  @MinLength(6)
-  password: string;
-
-  @IsString()
+export class UpdateUserDto {
   @IsOptional()
+  @IsString()
+  username?: string;
+
+  @IsOptional()
+  @IsString()
+  standByUsername?: string;
+
+  @IsOptional()
+  @IsEmail()
+  email?: string;
+
+  @IsOptional()
+  @IsEmail()
+  standByEmail?: string;
+
+  @IsOptional()
+  @IsString()
   image?: string;
 
-  @IsEnum(UserRole)
   @IsOptional()
-  role?: UserRole;
+  @IsArray()
+  @IsString({ each: true })
+  connectedServiceIds?: string[];
 
   @IsOptional()
-  favoriteBands?: string[];
+  @IsBoolean()
+  verified?: boolean;
+
+  @IsOptional()
+  @IsEnum(UserRole)
+  role?: UserRole;
 }

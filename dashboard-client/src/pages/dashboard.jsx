@@ -4,6 +4,11 @@ import { getConnectors, getWidgetsByService } from "../services/apiService";
 import BackImage from '/src/assets/Image.jpeg';
 import GithubStarsWidget from "../components/githubWidgets/Favori";
 import GithubReposWidget from "../components/githubWidgets/Repo";
+import BackImage from "/src/assets/bg.jpg";
+import { Navigate } from "react-router-dom";
+import { getUserDashboard } from "../controllers/userController";
+import SportsNewsWidget from "../components/news/FootNewsWidget";
+import { getFromApi } from "../services/axiosService";
 
 export default function Dashboard() {
   const [connectors, setConnectors] = useState([]);
@@ -13,11 +18,17 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchData = async () => {
       const connectorsData = await getConnectors();
-      // console.log(data);
+      // console.log(connectorsData);
       setConnectors(connectorsData);
     };
     fetchData();
+    fetchUserDashboard();
   }, []);
+
+  const fetchUserDashboard = async () => {
+    const result = await getUserDashboard();
+    setConnectors(result[1].connectors);
+  };
 
   // Open a window
   const openApp = (app) => {
@@ -33,7 +44,7 @@ export default function Dashboard() {
 
   return (
     <div
-      className="relative min-h-screen bg-contain bg-center text-gray-100 font-sans"
+      className="relative min-h-screen bg-cover bg-center text-gray-100 font-sans overflow-hidden"
       style={{
         backgroundImage: `url(${BackImage})`,
       }}
@@ -44,6 +55,19 @@ export default function Dashboard() {
 
       {/* connectors Dock */}
       <div> <GithubReposWidget/><GithubStarsWidget/></div>
+      <div className="items-center justify-center m-10 ">
+        <a
+          href="/profile"
+          className="relative hover:scale-110 transition-transform"
+        >
+          <img
+            src="https://freesvg.org/img/abstract-user-flat-4.png"
+            alt="profile icon"
+            className="w-12 h-12 rounded"
+          />
+          <p className="text-xs text-white mt-1"></p>
+        </a>
+      </div>
       <footer className="fixed bottom-0 left-0 right-0 flex justify-center items-end z-40 h-28 p-3">
         <div className="bg-black/40 backdrop-blur-xl p-3 rounded-2xl flex items-end space-x-3">
           {connectors.map((app) => (
@@ -78,12 +102,12 @@ export default function Dashboard() {
 
 //window component
 const Window = ({ app, onClose, zIndex }) => {
-
   //fetch widgets from api
   const [widgets, setWidgets] = useState([]);
   useEffect(() => {
     const fetchWidgets = async () => {
       const data = await getWidgetsByService(app._id);
+      console.log('DEBUG - data', data);
       setWidgets(data);
     };
     fetchWidgets();
@@ -110,7 +134,8 @@ const Window = ({ app, onClose, zIndex }) => {
           <h3 className="text-sm font-semibold mb-2">Available widgets:</h3>
           {widgets.length > 0 ? (
             <div className="space-y-3">
-              {widgets.map((widget) => (
+              {widgets?.map((widget) => (
+                
                 <WidgetCard key={widget._id} widget={widget} app={app}/>
               ))}
             </div>
@@ -124,58 +149,76 @@ const Window = ({ app, onClose, zIndex }) => {
 };
 
 const WidgetCard = ({ widget, app }) => {
+
   const [data, setData] = useState(null);
+
+  console.log('DEBUG - widget card', widget);
+  if (widget?.name === 'Sports News'){
+    return <SportsNewsWidget widget={widget} app={app} />;
+  }
+
   // function to get widget data
+  const [isLoading, setLoading] = useState(false);
+
   const fetchWidgetData = async () => {
-    // console.log(app.baseUrl + widget.endpoint);
-    const fullUrl = `${app.baseUrl}${widget.endpoint}`;
-    console.log(fullUrl);
+    setLoading(true);
+    const proxyUrl = `http://localhost:3000/proxy?baseUrl=${encodeURIComponent(
+      app.baseUrl
+    )}&endpoint=${encodeURIComponent(widget.endpoint)}`;
+
     try {
-      const res = await fetch(fullUrl, {
-        method: "GET",
-        credentials: "include",
-      });
-      
-      if (!res.ok) {
-        throw new Error(`Error: ${res.status}`);
+      // const res = await fetch(proxyUrl, {
+      //   method: "GET",
+      //   credentials: "include",
+      // });
+
+      // const res = getFromApi(`http://localhost:3000/widgets/${widget._id}/fetch`)
+
+      let res = await getFromApi("http://localhost:3000/widgets/690cca303f1b5a363ce6b422/fetch")
+      console.log(res)
+      if(res[0] == true){
+        res = res[1].weather
       }
       const result = await res.json();
+
+      if (result.redirect) {
+        // Redirect when clicking
+        window.location.href = result.redirect;
+        return;
+      }
+
       setData(result);
     } catch (err) {
       console.error("Error while fetching widget:", widget.name, err);
       setData({ error: "Cannot load widget" });
+    } finally {
+      setLoading(false);
     }
   };
 
-  // auto-refresh
-  useEffect(() => {
-    fetchWidgetData();
-    const interval = setInterval(fetchWidgetData, widget.refreshRate * 1000);
-    return () => clearInterval(interval);
-  }, [widget, app]);
-
   return (
-    <div className="bg-gray-800/60 border border-white/10 rounded-lg p-3">
+    <div
+      onClick={fetchWidgetData}
+      className="cursor-pointer bg-gray-800/60 border border-white/10 rounded-lg p-3 hover:bg-gray-700/60 transition"
+    >
       <h4 className="font-semibold text-sm mb-2">{widget.name}</h4>
-      <img
-        src={widget.icon}
-        alt={widget.name}
-        className="w-12 h-12 rounded"
-      />
+      <img src={widget.icon} alt={widget.name} className="w-12 h-12 rounded" />
       <p className="text-xs text-gray-400 mb-2">{widget.description}</p>
 
       {/* display content */}
       <div className="text-sm bg-gray-900/40 p-2 rounded">
-        {data ? (
+        {isLoading ? (
+          <p className="text-gray-400 italic">Loading...</p>
+        ) : data ? (
           data.error ? (
             <p className="text-red-400">{data.error}</p>
           ) : (
             <pre className="whitespace-pre-wrap text-xs">
-              {JSON.stringify(data, null, 2)}
+              {typeof data === "string" ? data : JSON.stringify(data, null, 2)}
             </pre>
           )
         ) : (
-          <p className="text-gray-400 italic">Loading...</p>
+          <p className="text-gray-400 italic">Click here to display</p>
         )}
       </div>
     </div>

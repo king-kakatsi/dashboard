@@ -21,7 +21,7 @@ export function refreshAxios(){
 
   axiosService.interceptors.request.use((config) => {
     const token = fetchFromLocalStorage('access_token')
-    console.log('DEBUG - axios service', token);
+    // console.log('DEBUG - axios service', token);
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
@@ -85,21 +85,29 @@ export async function postWithApi(endPoint, data = null, successStatus = 200) {
  * @param {string} endPoint
  * @param {string} id
  * @param {object} data
+ * @param {boolean} autoJoin
  * @returns
  */
 export async function updateWithApi(endPoint, id = null, data, autoJoin = true) {
-
     if (data) {
       try {
-      if (autoJoin && id) endPoint += id;
-        const result = await axiosService.put(endPoint + id, data)
-        if (result.status === 200) return [true, result.data]
-        return [false, result.data]
+        let url = endPoint;
+        if (autoJoin && id) {
+          url += id;
+        }
+        
+        const result = await axiosService.put(url, data);
+        
+        if (result.status === 200) {
+          return [true, result.data];
+        }
+        return [false, result.data];
       } catch (error) {
-        return [false, error.response.data]
+        console.error('Update API Error:', error);
+        return [false, error.response?.data || { message: 'Update failed' }];
       }
     }
-    return [false, null];
+    return [false, { message: 'No data provided' }];
 }
 
 

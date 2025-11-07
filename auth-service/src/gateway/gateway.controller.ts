@@ -10,9 +10,10 @@ import {
   Request,
 } from '@nestjs/common';
 import { GatewayService } from './gateway.service';
+import { CustomAuthGuard } from 'src/auth/guards/auth.guard';
 
 @Controller() // Routes available at root level
-// @UseGuards(JwtAuthGuard) // All routes require authentication
+@UseGuards(CustomAuthGuard) // All routes require authentication
 export class GatewayController {
   constructor(private readonly gatewayService: GatewayService) {}
 
@@ -24,9 +25,9 @@ export class GatewayController {
   // ===== Connectors Routes =====
   @Get('connectors')
   getConnectors(@Request() req) {
-    try{
+    try {
       return this.gatewayService.getConnectors(req.user.id);
-    } catch (error){
+    } catch (error) {
       return this.gatewayService.getConnectors();
     }
   }
@@ -54,9 +55,9 @@ export class GatewayController {
   // ===== Widgets Routes =====
   @Get('widgets')
   getWidgets(@Request() req) {
-    try{
+    try {
       return this.gatewayService.getWidgets(req.user.id);
-    } catch (error){
+    } catch (error) {
       return this.gatewayService.getWidgets();
     }
   }

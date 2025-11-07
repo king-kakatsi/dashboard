@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import ServicesTab from './ServicesTab';
 import WidgetsTab from './WidgetsTab';
+import { fetchFromLocalStorage } from '../../services/localStorageService';
 
 const ProfileTabs = ({ user }) => {
+  user = fetchFromLocalStorage('user');
   const [activeTab, setActiveTab] = useState('services');
 
   const tabs = [
@@ -13,7 +15,7 @@ const ProfileTabs = ({ user }) => {
   const renderTabContent = () => {
     switch (activeTab) {
       case 'services':
-        return <ServicesTab services={user?.services} />;
+        return <ServicesTab services={user?.connectors} />;
       case 'widgets':
         return <WidgetsTab widgets={user?.widgets} />;
       default:
