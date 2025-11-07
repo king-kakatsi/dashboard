@@ -49,4 +49,33 @@ export class EmailTemplateUtil {
       verificationLink,
     });
   }
+
+  static getUpdateConfirmationEmail(
+    username: string,
+    confirmationLink: string,
+    newEmail?: string,
+    newUsername?: string,
+  ): string {
+    let template = this.loadTemplate('updateConfirmation', {
+      username,
+      confirmationLink,
+      newEmail: newEmail || '',
+      newUsername: newUsername || '',
+    });
+
+    // Handle conditional sections
+    if (!newEmail) {
+      template = template.replace(/{{#if newEmail}}[\s\S]*?{{\/if}}/g, '');
+    } else {
+      template = template.replace(/{{#if newEmail}}/g, '').replace(/{{\/if}}/g, '');
+    }
+
+    if (!newUsername) {
+      template = template.replace(/{{#if newUsername}}[\s\S]*?{{\/if}}/g, '');
+    } else {
+      template = template.replace(/{{#if newUsername}}/g, '').replace(/{{\/if}}/g, '');
+    }
+
+    return template;
+  }
 }

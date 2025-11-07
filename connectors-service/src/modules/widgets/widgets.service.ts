@@ -45,12 +45,8 @@ export class WidgetsService {
     if (!deleted) throw new NotFoundException('Widget not found');
   }
 
-  // ⚙️ Mettre à jour la position d’un widget pour un utilisateur donné
-  async updateUserPosition(
-    widgetId: string,
-    userId: string,
-    position: { x: number; y: number },
-  ) {
+  // Mettre à jour la position d’un widget pour un utilisateur donné
+  async updateUserPosition(widgetId: string, userId: string, position: { x: number; y: number }) {
     const widget = await this.widgetModel.findById(widgetId);
     if (!widget) throw new NotFoundException('Widget not found');
 
@@ -72,10 +68,10 @@ export class WidgetsService {
     return widget;
   }
 
-  // 🔍 Récupérer les widgets d’un utilisateur
+  // Récupérer les widgets d’un utilisateur
   async findByUser(userId: string): Promise<Widget[]> {
     return this.widgetModel
-      .find({ userIds: userId })
+      .find({ userIds: { $in: [userId] } })
       .populate('serviceId')
       .exec();
   }

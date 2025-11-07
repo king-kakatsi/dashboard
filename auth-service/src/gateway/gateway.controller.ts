@@ -10,9 +10,10 @@ import {
   Request,
 } from '@nestjs/common';
 import { GatewayService } from './gateway.service';
+import { CustomAuthGuard } from 'src/auth/guards/auth.guard';
 
 @Controller() // Routes available at root level
-// @UseGuards(JwtAuthGuard) // All routes require authentication
+@UseGuards(CustomAuthGuard) // All routes require authentication
 export class GatewayController {
   constructor(private readonly gatewayService: GatewayService) {}
 
