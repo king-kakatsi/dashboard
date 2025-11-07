@@ -3,6 +3,7 @@ import { getConnectors, getWidgetsByService } from "../services/apiService";
 import BackImage from "/src/assets/bg.jpg";
 import { getUserDashboard } from "../controllers/userController";
 import { getFromApi } from "../services/axiosService";
+import SportsNewsWidget from "../components/news/FootNewsWidget";
 
 export default function Dashboard() {
   const [connectors, setConnectors] = useState([]);
@@ -82,6 +83,8 @@ export default function Dashboard() {
 
 const Window = ({ app, onClose, zIndex }) => {
   const [widgets, setWidgets] = useState([]);
+  const [weatherData, setWeatherData] = useState(null);
+  // const [news, setNews] = useState();
 
   useEffect(() => {
     const fetchWidgets = async () => {
