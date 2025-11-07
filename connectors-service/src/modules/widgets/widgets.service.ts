@@ -138,3 +138,5 @@ async fetchWidgetData(widgetId: string, additionalParams: Record<string, any> = 
 }
 
 }
+
+}

@@ -25,9 +25,9 @@ export class GatewayController {
   // ===== Connectors Routes =====
   @Get('connectors')
   getConnectors(@Request() req) {
-    try{
+    try {
       return this.gatewayService.getConnectors(req.user.id);
-    } catch (error){
+    } catch (error) {
       return this.gatewayService.getConnectors();
     }
   }
@@ -55,9 +55,9 @@ export class GatewayController {
   // ===== Widgets Routes =====
   @Get('widgets')
   getWidgets(@Request() req) {
-    try{
+    try {
       return this.gatewayService.getWidgets(req.user.id);
-    } catch (error){
+    } catch (error) {
       return this.gatewayService.getWidgets();
     }
   }
