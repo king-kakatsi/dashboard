@@ -4,6 +4,7 @@ import { getConnectors, getWidgetsByService } from "../services/apiService";
 import BackImage from "/src/assets/bg.jpg";
 import { Navigate } from "react-router-dom";
 import { getUserDashboard } from "../controllers/userController";
+import SportsNewsWidget from "../components/news/FootNewsWidget";
 import { getFromApi } from "../services/axiosService";
 
 export default function Dashboard() {
@@ -102,6 +103,7 @@ const Window = ({ app, onClose, zIndex }) => {
   useEffect(() => {
     const fetchWidgets = async () => {
       const data = await getWidgetsByService(app._id);
+      console.log('DEBUG - data', data);
       setWidgets(data);
     };
     fetchWidgets();
@@ -129,7 +131,8 @@ const Window = ({ app, onClose, zIndex }) => {
           {widgets.length > 0 ? (
             <div className="space-y-3">
               {widgets?.map((widget) => (
-                <WidgetCard key={widget._id} widget={widget} app={app} />
+                
+                <WidgetCard key={widget._id} widget={widget} app={app}/>
               ))}
             </div>
           ) : (
@@ -142,7 +145,15 @@ const Window = ({ app, onClose, zIndex }) => {
 };
 
 const WidgetCard = ({ widget, app }) => {
+
   const [data, setData] = useState(null);
+
+  console.log('DEBUG - widget card', widget);
+  if (widget?.name === 'Sports News'){
+    return <SportsNewsWidget widget={widget} app={app} />;
+  }
+
+  // function to get widget data
   const [isLoading, setLoading] = useState(false);
 
   const fetchWidgetData = async () => {
