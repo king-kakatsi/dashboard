@@ -12,4 +12,4 @@ import { MongooseModule } from '@nestjs/mongoose';
   providers: [ConnectorsService],
   controllers: [ConnectorsController, ProxyController],
 })
-export class ConnectorsModule { }
+export class ConnectorsModule {}

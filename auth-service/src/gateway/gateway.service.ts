@@ -67,7 +67,7 @@ export class GatewayService {
   // }
 
   getConnectors(userId?: string) {
-    if (!userId){
+    if (!userId) {
       return this.forwardRequest('get', '/connectors');
     }
     return this.forwardRequest('get', '/connectors', userId);
@@ -133,7 +133,10 @@ export class GatewayService {
         widgets,
       };
     } catch (error) {
-      console.log('================\nDEBUG - gateway.service > getUserDashboard: ' + error);
+      console.log(
+        '================\nDEBUG - gateway.service > getUserDashboard: ' +
+          error,
+      );
       this.logger.error('Failed to fetch dashboard data');
       throw new HttpException('Failed to fetch dashboard data', 500);
     }
