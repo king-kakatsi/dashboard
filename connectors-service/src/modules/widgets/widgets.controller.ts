@@ -13,7 +13,7 @@ import { UpdateWidgetDto } from './dto/update-widgets.dto';
 
 @Controller('widgets')
 export class WidgetsController {
-  constructor(private readonly widgetsService: WidgetsService) { }
+  constructor(private readonly widgetsService: WidgetsService) {}
 
   @Post()
   create(@Body() dto: CreateWidgetDto) {

@@ -255,7 +255,6 @@ export class AuthService {
       html: htmlContent,
     });
   }
-    
 
   async confirmMail(id: string) {
     return this.userService.update(id, { verified: true });

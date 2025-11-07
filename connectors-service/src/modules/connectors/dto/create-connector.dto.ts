@@ -1,17 +1,17 @@
 import { IsArray, IsNotEmpty, IsOptional, IsString, IsUrl } from 'class-validator';
 
 export class CreateConnectorDto {
-    @IsString()
-    @IsNotEmpty()
-    title: string;
+  @IsString()
+  @IsNotEmpty()
+  title: string;
 
-    @IsString()
-    @IsOptional()
-    description?: string;
+  @IsString()
+  @IsOptional()
+  description?: string;
 
-    @IsNotEmpty()
-    @IsUrl()
-    icon: string;
+  @IsNotEmpty()
+  @IsUrl()
+  icon: string;
 
     @IsNotEmpty()
     @IsUrl()

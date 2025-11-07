@@ -6,7 +6,7 @@ import {
   IsNumber,
   IsBoolean,
   IsNotEmpty,
-  IsUrl
+  IsUrl,
 } from 'class-validator';
 
 export class CreateWidgetDto {

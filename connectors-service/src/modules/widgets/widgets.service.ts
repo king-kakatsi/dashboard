@@ -10,7 +10,7 @@ export class WidgetsService {
   constructor(
     @InjectModel(Widget.name)
     private readonly widgetModel: Model<WidgetDocument>,
-  ) { }
+  ) {}
 
   async create(dto: CreateWidgetDto): Promise<Widget> {
     const widget = new this.widgetModel(dto);
@@ -80,5 +80,4 @@ export class WidgetsService {
   async findByService(serviceId: string): Promise<Widget[]> {
     return this.widgetModel.find({ serviceId }).exec();
   }
-
 }

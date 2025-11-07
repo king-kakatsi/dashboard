@@ -21,4 +21,4 @@ import { GoogleModule } from './modules/widgets/google.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}
