@@ -26,9 +26,27 @@ export class WidgetsController {
     return this.widgetsService.findAll();
   }
 
+  @Get('user/:userId')
+  findByUser(@Param('userId') userId: string) {
+    return this.widgetsService.findByUser(userId);
+  }
+
+  @Get('service/:serviceId')
+  findByService(@Param('serviceId') serviceId: string) {
+    return this.widgetsService.findByService(serviceId);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.widgetsService.findOne(id);
+  }
+
+  @Get(':id/fetch')
+  fetchWidgetData(
+    @Param('id') id: string,
+    @Query() queryParams: Record<string, any>,
+  ) {
+    return this.widgetsService.fetchWidgetData(id, queryParams);
   }
 
   @Put(':id')
@@ -41,7 +59,6 @@ export class WidgetsController {
     return this.widgetsService.remove(id);
   }
 
-  //Mettre à jour la position d’un widget pour un utilisateur
   @Put(':widgetId/user/:userId/position')
   updatePosition(
     @Param('widgetId') widgetId: string,
@@ -51,23 +68,19 @@ export class WidgetsController {
     return this.widgetsService.updateUserPosition(widgetId, userId, position);
   }
 
-  //Lister les widgets d’un utilisateur
-  @Get('user/:userId')
-  findByUser(@Param('userId') userId: string) {
-    return this.widgetsService.findByUser(userId);
-  }
-
-  //find service
-  @Get('service/:serviceId')
-  findByService(@Param('serviceId') serviceId: string) {
-    return this.widgetsService.findByService(serviceId);
-  }
-
-  @Get(':id/fetch')
-  fetchWidgetData(
-    @Param('id') id: string,
-    @Query() queryParams: Record<string, any>,
+  @Post(':id/activate/:userId')
+  activateForUser(
+    @Param('id') widgetId: string,
+    @Param('userId') userId: string,
   ) {
-    return this.widgetsService.fetchWidgetData(id, queryParams);
+    return this.widgetsService.activateForUser(widgetId, userId);
+  }
+
+  @Delete(':id/deactivate/:userId')
+  deactivateForUser(
+    @Param('id') widgetId: string,
+    @Param('userId') userId: string,
+  ) {
+    return this.widgetsService.deactivateForUser(widgetId, userId);
   }
 }

@@ -90,69 +90,76 @@ export class WidgetsService {
     return this.widgetModel.find({ serviceId }).exec();
   }
 
-  async fetchWidgetData(
-    widgetId: string,
-    additionalParams: Record<string, any> = {},
-  ): Promise<any> {
-    try {
-      // Get widget
-      const widget = await this.widgetModel
-        .findById(widgetId)
-        .populate('serviceId')
-        .exec();
+  async activateForUser(widgetId: string, userId: string): Promise<Widget> {
+  const widget = await this.widgetModel.findById(widgetId);
+  if (!widget) throw new NotFoundException('Widget not found');
 
-      if (!widget) {
-        throw new NotFoundException('Widget not found');
-      }
+  if (!widget.userIds.includes(userId)) {
+    widget.userIds.push(userId);
+    await widget.save();
+  }
+  
+  return widget;
+}
 
-      // Check if service exists
-      const connector = widget.serviceId as any;
-      if (!connector || !connector.baseUrl) {
-        throw new NotFoundException('Connector not found or invalid');
-      }
-      let fullUrl = `${connector.baseUrl}${widget.endpoint || ''}`;
+async deactivateForUser(widgetId: string, userId: string): Promise<Widget> {
+  const widget = await this.widgetModel.findById(widgetId);
+  if (!widget) throw new NotFoundException('Widget not found');
 
-      // add additional params
-      if (Object.keys(additionalParams).length > 0) {
-        const params = new URLSearchParams(additionalParams as any);
-        const separator = fullUrl.includes('?') ? '&' : '?';
-        fullUrl = `${fullUrl}${separator}${params.toString()}`;
-      }
+  widget.userIds = widget.userIds.filter(id => id !== userId);
+  await widget.save();
+  
+  return widget;
+}
 
-      // Send request to third party service
-      console.log(
-        '\n\n\n\n================ DEBUG - full api url',
-        connector.baseUrl,
-        widget.endpoint,
-        fullUrl,
-      );
-      const response = await axios.get(fullUrl, {
-        timeout: 15000,
-      });
-      if (response.status === 200) {
-        return {
-          success: true,
-          data: response.data,
-          widget: {
-            id: widget._id,
-            name: widget.name,
-          },
-        };
-      }
+async fetchWidgetData(widgetId: string, additionalParams: Record<string, any> = {}): Promise<any> {
+  try {
+    // Get widget
+    const widget = await this.widgetModel
+      .findById(widgetId)
+      .populate('serviceId')
+      .exec();
 
-      throw new InternalServerErrorException(
-        'Failed to fetch data from external API',
-      );
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
+    if (!widget) {
+      throw new NotFoundException('Widget not found');
+    }
 
-      console.error('Error fetching widget data:', error.message);
-      throw new InternalServerErrorException(
-        error.response?.data?.message ||
-          'Error fetching data from external API',
-      );
+    // Check if service exists
+    const connector = widget.serviceId as any;
+    if (!connector || !connector.baseUrl) {
+      throw new NotFoundException('Connector not found or invalid');
+    }
+    let fullUrl = `${connector.baseUrl}${widget.endpoint || ''}`;
+
+    // add additional params 
+    if (Object.keys(additionalParams).length > 0) {
+      const params = new URLSearchParams(additionalParams as any);
+      const separator = fullUrl.includes('?') ? '&' : '?';
+      fullUrl = `${fullUrl}${separator}${params.toString()}`;
+    }
+
+    // Send request to third party service
+    console.log('\n\n\n\n================ DEBUG - full api url', connector.baseUrl, widget.endpoint, fullUrl);
+    const response = await axios.get(fullUrl, {
+      timeout: 15000,
+    });
+    if (response.status === 200) {
+      return {
+        success: true,
+        data: response.data,
+        widget: {
+          id: widget._id,
+          name: widget.name,
+        },
+      };
+    }
+
+    throw new InternalServerErrorException('Failed to fetch data from external API');
+  } catch (error) {
+    if (error instanceof NotFoundException) {
+      throw error;
     }
   }
+}
+
 }

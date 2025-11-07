@@ -5,9 +5,9 @@ export type WidgetDocument = Widget & Document;
 
 @Schema({ timestamps: true })
 export class Widget {
-  // @Prop({ type: [{ type: Types.ObjectId, ref: 'User' }], default: [] })
   // userIds: Types.ObjectId[];
-  @Prop({ unique: true })
+  // @Prop({ unique: true })
+  @Prop({ type: [String], index: true })
   userIds: string[];
 
   @Prop({ type: Types.ObjectId, ref: 'Connector', required: true })
