@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getUserProfile } from '../../controllers/userController';
+import { getUserDashboard, getUserProfile } from '../../controllers/userController';
 import Navigation from '../../components/user/Nav';
 import ProfileCard from '../../components/user/ProfileCard';
 import ProfileTabs from '../../components/user/ProfileTabs';
 import Alert from '../../components/Alert';
-import { fetchFromLocalStorage } from '../../services/localStorageService';
+import { fetchFromLocalStorage, saveInLocalStorage } from '../../services/localStorageService';
 
 const Profile = () => {
   const { userId } = useParams();
@@ -20,6 +20,12 @@ const Profile = () => {
       setLoading(true);
       const access_token = fetchFromLocalStorage('access_token');
       const user = fetchFromLocalStorage('user');
+      const result = await getUserDashboard();
+      if (user && result[0]){
+        user.connectors = result[1].connectors;
+        user.widgets = result[1].widgets;
+        saveInLocalStorage('user', user);
+      }
       const id = user?.id;
       
       if (!access_token) {

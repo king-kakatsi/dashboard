@@ -25,10 +25,10 @@ export class ConnectorsController {
     return this.connectorsService.findAll();
   }
 
-  @Get(':id')
-  async findOne(@Param('id') id: string) {
-    return this.connectorsService.findOne(id);
-  }
+  // @Get(':id')
+  // async findOne(@Param('id') id: string) {
+  //   return this.connectorsService.findOne(id);
+  // }
 
   @Put(':id')
   async update(
@@ -42,5 +42,10 @@ export class ConnectorsController {
   async remove(@Param('id') id: string) {
     await this.connectorsService.remove(id);
     return { message: 'Connector deleted successfully' };
+  }
+
+  @Get('user/:userId')
+  findByUser(@Param('userId') userId: string) {
+    return this.connectorsService.findByUser(userId);
   }
 }

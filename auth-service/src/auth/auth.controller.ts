@@ -104,7 +104,7 @@ export class AuthController {
 
     const frontendUrl =
       this.configService.get('FRONTEND_URL') || 'http://localhost:5173';
-    return res.redirect(`${frontendUrl}/auth/callback?token=${token}`);
+    return res.redirect(`${frontendUrl}/auth/callback?token=${token}&id=${user?.id}`);
   }
 
   @Get('github')
@@ -126,10 +126,10 @@ export class AuthController {
       maxAge: 24 * 60 * 60 * 1000,
     });
 
-    console.log('\n\n\n\nDEBUG oAuth token =====================', token);
+    // console.log('\n\n\n\nDEBUG oAuth token =====================', token);
     const frontendUrl =
       this.configService.get('FRONTEND_URL') || 'http://localhost:5173';
-    return res.redirect(`${frontendUrl}/auth/callback?token=${token}`);
+    return res.redirect(`${frontendUrl}/auth/callback?token=${token}&id=${user?.id}`);
   }
 
   @Get('me')

@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsOptional, IsString, IsUrl } from 'class-validator';
+import { IsArray, IsNotEmpty, IsOptional, IsString, IsUrl } from 'class-validator';
 
 export class CreateConnectorDto {
     @IsString()
@@ -16,4 +16,8 @@ export class CreateConnectorDto {
     @IsNotEmpty()
     @IsUrl()
     baseUrl: string;
+
+    @IsArray()
+    @IsOptional()
+    userIds?: string[];
 }

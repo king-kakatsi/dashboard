@@ -1,6 +1,7 @@
 import React from 'react';
 
 const ServicesTab = ({ services }) => {
+  console.log("DEBUG - from services tab", services);
   if (!services || services.length === 0) {
     return (
       <div className="text-center py-12">
@@ -41,14 +42,9 @@ const ServicesTab = ({ services }) => {
             </div>
             <div className="text-right">
               <span 
-                className="inline-block px-3 py-1 rounded-full text-xs font-semibold"
-                style={
-                  service.status === 'active' 
-                    ? { backgroundColor: '#10b981', color: 'white' } 
-                    : { backgroundColor: '#e5e7eb', color: '#374151' }
-                }
+                className="inline-block bg-[#10b981] text-white px-3 py-1 rounded-full text-xs font-semibold"
               >
-                {service.status || 'inactive'}
+                active
               </span>
             </div>
           </div>

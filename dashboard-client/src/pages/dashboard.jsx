@@ -3,6 +3,7 @@ import { getConnectors, getWidgetsByService } from "../services/apiService";
 // import BackImage from "/src/assets/Image.jpeg";
 import BackImage from '/src/assets/Image.jpeg';
 import { Navigate } from "react-router-dom";
+import { getUserDashboard } from "../controllers/userController";
 
 export default function Dashboard() {
   const [connectors, setConnectors] = useState([]);
@@ -16,7 +17,15 @@ export default function Dashboard() {
       setConnectors(connectorsData);
     };
     fetchData();
+    fetchUserDashboard();
   }, []);
+
+
+  const fetchUserDashboard = async () =>{
+    const result = await getUserDashboard();
+    setConnectors(result[1].connectors);
+  }
+
 
   // Open a window
   const openApp = (app) => {

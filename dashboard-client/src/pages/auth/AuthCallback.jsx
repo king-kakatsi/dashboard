@@ -8,10 +8,12 @@ export const AuthCallback = () => {
 
   useEffect(() => {
     const token = searchParams.get('token');
+    const id = searchParams.get('id');
     // console.log("DEBUG oatuth token received", token)
     if (token) {
       // Save token to localStorage
       saveInLocalStorage('access_token', token)
+      if (id) saveInLocalStorage('user', {id})
       
       // Redirect to dashboard
       navigate('/', { replace: true });

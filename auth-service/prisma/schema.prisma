@@ -33,10 +33,12 @@ model User {
   // Connected services (IDs from connectors-service)
   // Store as array of strings since they're external IDs
   connectedServiceIds String[]  @default([]) 
+  connectors Json?
   
   // Active widgets (IDs from connectors-service)
   // Each widget belongs to a service
   activeWidgetIds     String[]  @default([])
+  widgets Json?
   
   // OAuth fields
   provider      AuthProvider  @default(LOCAL)

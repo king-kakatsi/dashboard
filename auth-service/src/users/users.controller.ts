@@ -46,7 +46,6 @@ export class UsersController {
     @CurrentUser() user: any,
     @Body() updateUserDto: UpdateUserDto,
   ) {
-    console.log('DEBUG - users controller', user);
     return this.usersService.update(user.id, updateUserDto);
   }
 

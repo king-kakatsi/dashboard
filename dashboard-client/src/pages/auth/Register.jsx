@@ -45,7 +45,6 @@ export default function Register() {
               password: password,
               passwordConfirmation: confirmPassword
             });
-            console.log("DEBUG", result)
 
             if (result[0] === true){
               setSuccess("Successfully register. You'll receive confirmation email!");

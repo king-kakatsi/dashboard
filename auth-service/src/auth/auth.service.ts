@@ -180,7 +180,7 @@ export class AuthService {
   async verifyToken(token: string) {
     try {
       const decoded = this.jwtService.verify(token);
-      console.log('\n\n\n\nDEBUG ======================', decoded);
+      // console.log('\n\n\n\nDEBUG ======================', decoded);
       const user = await prisma.user.findUnique({
         where: { id: decoded.userId },
         select: {

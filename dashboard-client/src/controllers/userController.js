@@ -37,7 +37,7 @@ export async function login(userData = null, method = null){
     } else if (method === 'github'){ 
         window.location.href = import.meta.env.VITE_API_URL + '/auth/github';
     }else if (userData){
-        return await postWithApi(`${AUTH_ENDPOINT}login`, userData, 201)
+        return await postWithApi(`${AUTH_ENDPOINT}login`, userData, 200)
     } else {
         return [false, {message: 'Invalid user data'}]
     }
@@ -105,4 +105,11 @@ export async function changeUserPassword(userId, data) {
  */
 export async function getCurrentUser() {
     return await getFromApi('auth/me');
+}
+
+
+export async function getUserDashboard(){
+    const result = await getFromApi('dashboard');
+    console.log("DEBUG - ge user dash from user controller", result);
+    return result;
 }

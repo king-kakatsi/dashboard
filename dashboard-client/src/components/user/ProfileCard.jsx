@@ -1,6 +1,8 @@
 import React from 'react';
+import { fetchFromLocalStorage } from '../../services/localStorageService';
 
 const ProfileCard = ({ user }) => {
+  user = fetchFromLocalStorage('user');
   const getInitials = (username) => {
     if (!username) return 'U';
     return username.charAt(0).toUpperCase();
@@ -42,7 +44,7 @@ const ProfileCard = ({ user }) => {
       <div className="grid grid-cols-2 gap-4 mb-6 text-center">
         <div className="p-3 bg-gray-50 rounded-lg">
           <div className="text-2xl font-bold" style={{ color: '#FF214F' }}>
-            {user?.services?.length || 0}
+            {user?.connectors?.length || 0}
           </div>
           <div className="text-xs text-gray-600">Services</div>
         </div>
