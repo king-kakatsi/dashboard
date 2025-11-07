@@ -6,6 +6,7 @@ import {
   Delete,
   Body,
   Param,
+  Query,
 } from '@nestjs/common';
 import { WidgetsService } from './widgets.service';
 import { CreateWidgetDto } from './dto/create-widgets.dto';
@@ -60,5 +61,13 @@ export class WidgetsController {
   @Get('service/:serviceId')
   findByService(@Param('serviceId') serviceId: string) {
     return this.widgetsService.findByService(serviceId);
+  }
+
+  @Get(':id/fetch')
+  fetchWidgetData(
+  @Param('id') id: string,
+  @Query() queryParams: Record<string, any>,
+  ) {
+    return this.widgetsService.fetchWidgetData(id, queryParams);
   }
 }
