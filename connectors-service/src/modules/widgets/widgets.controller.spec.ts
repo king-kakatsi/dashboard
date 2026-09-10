@@ -53,4 +53,58 @@ describe('WidgetsController', () => {
     });
     expect(service.fetchWidgetData).toHaveBeenCalledWith('w1', {});
   });
+
+  it('finds widgets by user', async () => {
+    service.findByUser.mockResolvedValue([{ name: 'Weather' }]);
+    await expect(controller.findByUser('u1')).resolves.toEqual([
+      { name: 'Weather' },
+    ]);
+  });
+
+  it('finds widgets by service', async () => {
+    service.findByService.mockResolvedValue([{ name: 'Weather' }]);
+    await expect(controller.findByService('c1')).resolves.toEqual([
+      { name: 'Weather' },
+    ]);
+  });
+
+  it('finds one widget', async () => {
+    service.findOne.mockResolvedValue({ name: 'Weather' });
+    await expect(controller.findOne('w1')).resolves.toEqual({
+      name: 'Weather',
+    });
+  });
+
+  it('updates a widget', async () => {
+    service.update.mockResolvedValue({ name: 'Updated' });
+    await expect(
+      controller.update('w1', { name: 'Updated' } as any),
+    ).resolves.toEqual({
+      name: 'Updated',
+    });
+    expect(service.update).toHaveBeenCalledWith('w1', { name: 'Updated' });
+  });
+
+  it('removes a widget', async () => {
+    service.remove.mockResolvedValue(undefined);
+    await expect(controller.remove('w1')).resolves.toBeUndefined();
+  });
+
+  it('updates a user position', async () => {
+    service.updateUserPosition.mockResolvedValue({ name: 'Weather' });
+    await expect(
+      controller.updatePosition('w1', 'u1', { x: 1, y: 2 }),
+    ).resolves.toEqual({ name: 'Weather' });
+  });
+
+  it('activates and deactivates a widget for a user', async () => {
+    service.activateForUser.mockResolvedValue({ userIds: ['u1'] });
+    await expect(controller.activateForUser('w1', 'u1')).resolves.toEqual({
+      userIds: ['u1'],
+    });
+    service.deactivateForUser.mockResolvedValue({ userIds: [] });
+    await expect(controller.deactivateForUser('w1', 'u1')).resolves.toEqual({
+      userIds: [],
+    });
+  });
 });

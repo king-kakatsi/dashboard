@@ -119,6 +119,18 @@ describe('ConnectorsService', () => {
     });
   });
 
+  describe('findByUser', () => {
+    it('returns connectors activated by a user', async () => {
+      modelMock.find.mockReturnValue({
+        exec: jest.fn().mockResolvedValue([{ title: 'A' }]),
+      });
+      await expect(service.findByUser('u1')).resolves.toEqual([{ title: 'A' }]);
+      expect(modelMock.find).toHaveBeenCalledWith({
+        userIds: { $in: ['u1'] },
+      });
+    });
+  });
+
   describe('activateForUser', () => {
     it('adds the user once and saves', async () => {
       const doc = { userIds: [], save: jest.fn() };

@@ -62,15 +62,11 @@ export class GatewayService {
   }
 
   // ===== Connectors Methods =====
-  // getAllConnectors() {
-  //   return this.forwardRequest('get', '/connectors');
-  // }
-
   getConnectors(userId?: string) {
     if (!userId) {
       return this.forwardRequest('get', '/connectors');
     }
-    return this.forwardRequest('get', '/connectors/user/' + userId);
+    return this.forwardRequest('get', '/connectors/user/' + userId, userId);
   }
 
   getConnector(connectorId: string, userId: string) {
@@ -96,7 +92,7 @@ export class GatewayService {
 
   // ===== Widgets Methods =====
   getWidgets(userId?: string) {
-    return this.forwardRequest('get', '/widgets/user/' + userId);
+    return this.forwardRequest('get', '/widgets/user/' + userId, userId);
   }
 
   getWidget(widgetId: string, userId: string) {

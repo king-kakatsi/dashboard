@@ -69,6 +69,15 @@ Production env notes: set `NODE_ENV=production` (cookies get `secure`), `FRONTEN
 ## Verify
 
 1. `npm run build` passes in all three projects.
-2. `npm test` passes in both services (38 + 9 tests).
-3. `npm run lint` in `dashboard-client` reports 0 errors.
-4. Register -> login -> open connector -> fetch widget works in the browser; `/health` on both APIs returns `status: ok`.
+2. Unit tests pass in both services (106 + 73 tests, ~99% line coverage):
+   `npm test` and `npm run test:cov` in each service.
+3. Integration tests pass against a local MongoDB replica set
+   (the environment ships one on `127.0.0.1:27017`, replica set `rs0`):
+   `npm run test:e2e` in each service (auth: 9 tests over real HTTP +
+   real MongoDB with `prisma db push` into an isolated `dashboard_auth_e2e`
+   database dropped afterwards; connectors: 11 tests over real HTTP +
+   in-memory MongoDB plus a local stub API proving live widget fetch and
+   proxy passthrough end to end). The mailer is mocked in e2e; everything
+   else (bcrypt, JWT, guards, validation, Prisma, Mongoose) is real.
+4. `npm run lint` in `dashboard-client` reports 0 errors.
+5. Register -> login -> open connector -> fetch widget works in the browser; `/health` on both APIs returns `status: ok`.

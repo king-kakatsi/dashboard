@@ -47,4 +47,31 @@ describe('ConnectorsController', () => {
       userIds: ['u1'],
     });
   });
+
+  it('updates a connector', async () => {
+    service.update.mockResolvedValue({ success: true });
+    await expect(
+      controller.update('c1', { title: 'B' } as any),
+    ).resolves.toEqual({
+      success: true,
+    });
+  });
+
+  it('removes a connector', async () => {
+    service.remove.mockResolvedValue(undefined);
+    await expect(controller.remove('c1')).resolves.toEqual({
+      message: 'Connector deleted successfully',
+    });
+  });
+
+  it('finds connectors by user and deactivates', async () => {
+    service.findByUser.mockResolvedValue([{ title: 'A' }]);
+    await expect(controller.findByUser('u1')).resolves.toEqual([
+      { title: 'A' },
+    ]);
+    service.deactivateForUser.mockResolvedValue({ userIds: [] });
+    await expect(controller.deactivateForUser('c1', 'u1')).resolves.toEqual({
+      userIds: [],
+    });
+  });
 });
