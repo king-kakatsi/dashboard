@@ -45,8 +45,27 @@ MIT — see `LICENSE.txt`. Use conventional commits and keep `npm test`, `npm ru
 
 ## Developed By
 
-**Leroi Kakatsi**
+### Gloria Ago
+- **Email:** enagnon.ago@epitech.eu
+- **WhatsApp:** +229 61 85 48 48
+- **Portfolio:** [my linkedIn](www.linkedin.com/in/gloria-enagnon-ago-65345421b)
 
-- Email: [leroi.kakatsi@epitech.eu](mailto:leroi.kakatsi@epitech.eu)
-- WhatsApp: [+233 53 561 0908](https://wa.me/233535610908)
-- Portfolio: [king-kakatsi.netlify.app](https://king-kakatsi.netlify.app)
+
+#### Leroi Kakatsi
+- **Email**: [leroi.kakatsi@epitech.eu](mailto:leroi.kakatsi@epitech.eu)
+- **WhatsApp**: [+233 53 561 0908](https://wa.me/233535610908)
+- **Portfolio**: [king.kakatsi.com](https://king.kakatsi.com)
+
+#### Lauret Chacha
+- **Email:** lauret.chacha@epitech.eu
+- **WhatsApp:** +229 0162166638
+- **Portfolio:** [https://--](www.--)
+
+  
+#### Rafiathou Yacoubou
+- **Email:** rafiathou.yacoubou@epitech.eu
+- **WhatsApp:** +229 --
+- **Portfolio:** [https://--](www.--)
+
+
+**Built with ❤️ by [Kings and Queens of Code]**
