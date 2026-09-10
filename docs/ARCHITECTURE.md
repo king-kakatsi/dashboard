@@ -1,104 +1,71 @@
 # Architecture
 
-Dashboard is a widget-management platform built as two NestJS microservices plus a React single-page application. All persistent data lives in MongoDB.
+Dashboard is a widget-monitoring platform built as two NestJS microservices plus one React SPA, all persisted in MongoDB. The auth-service owns identity and guards private calls; the connectors-service owns the public connector and widget catalog with live third-party fetching; the client renders the dock-and-windows workspace.
 
-## System overview
+## Project Tree
+
+```text
+dashboard/
+├── auth-service/         # identity API (NestJS + Prisma), port 3001
+├── connectors-service/   # catalog API (NestJS + Mongoose), port 3000
+├── dashboard-client/     # React SPA (Vite dev, nginx prod)
+└── docs/                 # this documentation set
+```
+
+Top-level roles: each service is independently deployable with its own database; the client is the only UI and calls both. Full tree: `architecture/PROJECT_TREE.md`.
 
 ```mermaid
 flowchart TD
-  Client[dashboard-client<br/>React 19 + Vite<br/>:5173] -->|REST + cookies/Bearer| Auth[auth-service<br/>NestJS + Prisma<br/>:3001]
-  Client -->|REST + Bearer| Conn[connectors-service<br/>NestJS + Mongoose<br/>:3000]
-  Auth -->|axios + X-User-Id| Conn
-  Conn -->|OAuth token lookup| Auth
-  Auth --> AuthDB[(MongoDB<br/>users)]
-  Conn --> ConnDB[(MongoDB<br/>database: dashboard<br/>connectors, widgets)]
-  Conn -->|proxy| Ext[External APIs<br/>GitHub, Gmail, News RSS,<br/>OpenWeatherMap]
+    Browser[React SPA] -->|Bearer and cookie| AuthApi[Auth Service]
+    Browser -->|Bearer| CatalogApi[Connectors Service]
+    AuthApi -->|Axios plus XUserId| CatalogApi
+    CatalogApi -->|OAuth token lookup| AuthApi
+    AuthApi -->|Prisma| AuthDb[(Auth MongoDB)]
+    CatalogApi -->|Mongoose| CatalogDb[(Catalog MongoDB)]
+    CatalogApi -->|Proxy and fetch| ThirdParty[GitHub Gmail News Weather]
 ```
-
-## Services
-
-### auth-service (port 3001)
-
-Owns identity. Responsibilities:
-
-- Local register/login with bcrypt (cost 10) and JWT (`userId`, `email`, `role`, `provider`, 7d expiry) delivered as an `httpOnly` cookie plus JSON body.
-- Google/GitHub OAuth via Passport strategies. OAuth access tokens are AES-256-CBC encrypted before storage.
-- Email verification (`POST /auth/verify-email/:id`, `GET /auth/confirm-email/:id`) and two-step profile email change (`PUT /users/profile` stages `standByEmail`, `GET /users/confirm-update/:userId` commits it).
-- Password change through a validated DTO.
-- Role model: `USER`, `ADMIN`. `CustomAuthGuard` accepts Bearer or cookie; `RolesGuard` enforces `@Roles('ADMIN')`.
-- `GatewayModule` proxies dashboard/connector/widget calls to the connectors-service, forwarding `X-User-Id`.
-- Cross-cutting: `helmet`, global `ThrottlerGuard` (100 req/min) with stricter limits (10 req/min) on register/login, strict global `ValidationPipe` (`whitelist`, `forbidNonWhitelisted`, `transform`), fail-fast env check, `GET /health`.
-
-### connectors-service (port 3000)
-
-Owns the catalog. Responsibilities:
-
-- `Connector` documents: `title`, `description`, `icon`, `baseUrl`, `userIds[]`.
-- `Widget` documents: `serviceId` (ref Connector), `name`, `endpoint`, `icon`, `refreshRate` (default 300s), `userIds[]`, `positions[{user_id, position{x,y}}]`.
-- Live data: `GET /widgets/:id/fetch` composes `baseUrl + endpoint + query` and calls the third-party API server-side (15s timeout).
-- `GET /proxy?baseUrl=&endpoint=` is a generic fetch proxy: RSS feeds render as HTML, Gmail calls attach the user's Google OAuth token (fetched from auth-service) and redirect to Google login when absent.
-- No local auth guards: every route is public and trusts the `userId` URL parameter. Only the auth-service gateway and the frontend call it, so do not expose this port publicly without adding authentication.
-- Cross-cutting: `helmet`, global `ThrottlerGuard`, strict global `ValidationPipe`, fail-fast env check, `GET /health`.
-
-### dashboard-client (port 5173 dev, nginx :80 in Docker)
-
-React SPA with `react-router-dom`. Layers: `pages/` (routes) -> `controllers/` (domain calls) -> `services/` (axios instances + localStorage token store). No global store library: local component state plus `localStorage` keys `access_token` and `user`. API calls return `[ok, payload]` tuples. Two axios instances exist: `axiosService` (auth-service base URL from `VITE_API_URL`) and `connectorsService` (connectors base URL from `VITE_API_URL_CONNECTOR`), plus a small `fetch`-based `apiService` for public catalog reads.
-
-## Request flows
 
 ```mermaid
-sequenceDiagram
-  participant U as User
-  participant C as Client
-  participant A as auth-service
-  participant K as connectors-service
-  U->>C: POST /register
-  C->>A: POST /auth/register
-  A->>A: validate DTO, hash password, create user
-  A-->>C: 201 + access_token cookie + token JSON
-  C->>K: GET /connectors (dock)
-  K-->>C: connector list
-  U->>C: open connector
-  C->>K: GET /widgets/service/:id
-  K-->>C: widgets
-  U->>C: click widget
-  C->>K: GET /widgets/:id/fetch
-  K->>K: baseUrl + endpoint + query
-  K-->>C: live data
+flowchart TD
+    Routes[Controllers] --> Guards[CustomAuthGuard and RolesGuard]
+    Guards --> Services[Auth Users Gateway Connectors Widgets]
+    Services --> DataAccess[Prisma and Mongoose models]
+    DataAccess --> Databases[(MongoDB databases)]
+    Services --> Mail[Mailer and Cloudinary]
+    Services --> Outside[External REST APIs]
 ```
-
-## Data model
 
 ```mermaid
-erDiagram
-  USER ||--o{ CONNECTOR : activates
-  USER ||--o{ WIDGET : activates
-  CONNECTOR ||--o{ WIDGET : owns
-  USER {
-    string id
-    string email
-    string username
-    string password_hash
-    string role
-    string provider
-    string-array connectedServiceIds
-    string-array activeWidgetIds
-    boolean verified
-  }
-  CONNECTOR {
-    string id
-    string title
-    string baseUrl
-    string-array userIds
-  }
-  WIDGET {
-    string id
-    string serviceId
-    string name
-    string endpoint
-    int refreshRate
-    string-array userIds
-  }
+flowchart TD
+    Presentation[React pages and components] --> Controllers[JS controllers]
+    Controllers --> HttpClients[Axios services]
+    HttpClients --> Application[NestJS controllers and services]
+    Application --> Domain[DTOs schemas and business rules]
+    Domain --> Data[Prisma and Mongoose]
+    Data --> External[SMTP Cloudinary Google GitHub]
 ```
 
-The auth-service `User` keeps `connectedServiceIds`/`activeWidgetIds` as the source for "my dashboard", while the connectors-service keeps mirrored `userIds` arrays on each document. The two copies are updated through separate endpoints and are eventually consistent by convention, not by transaction.
+## Component Breakdown
+
+- **auth-service** validates credentials with bcrypt, signs short JWT payloads, runs Google and GitHub OAuth with encrypted token storage, and sends verification mail. Its gateway re-exposes the catalog with the user id attached.
+- **connectors-service** stores connectors and widgets, activates them per user id, composes `baseUrl + endpoint` for live fetches, and proxies RSS, Gmail, and generic JSON. It has no auth guards, so it must stay behind the gateway.
+- **dashboard-client** keeps the token in localStorage, normalizes calls to `[ok, payload]` tuples, and renders the dock, draggable-feel windows, profile tabs, and polling news and GitHub widgets.
+- **MongoDB databases** hold users in one database and connectors plus widgets in another, linked by convention (`serviceId`, `userIds`) rather than cross-database transactions.
+- **External services** are SMTP for mail, Cloudinary for avatars, Google and GitHub for OAuth and data, plus any third-party JSON or RSS a widget points at.
+
+## Technology Decisions
+
+| Choice | Why |
+|---|---|
+| NestJS microservices | Isolated deploys plus dependency injection, guards, and pipes per service |
+| Prisma on auth, Mongoose on catalog | Prisma for the strict user model, Mongoose for the flexible widget documents |
+| MongoDB | Document shape fits connectors and widget positions; replica set enables Prisma transactions |
+| JWT in httpOnly cookie plus Bearer | Cookies survive reloads, Bearer covers API clients, Lax mode keeps OAuth working |
+| React tuple API layer | One `[ok, payload]` convention removes per-call error-shape guessing |
+
+## Design Patterns
+
+- Layered modules: controller validates, service decides, model persists, seen in every Nest module and mirrored by the client pages, controllers, and services split.
+- Gateway facade: the auth-service fronts catalog reads so the client keeps one identity-aware base URL.
+- Idempotent membership updates: activate calls add a user id only once; deactivates filter it out.
+- Fail-fast configuration: both APIs throw at boot when required environment variables are missing.
