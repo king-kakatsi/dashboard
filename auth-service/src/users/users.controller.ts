@@ -34,12 +34,14 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
-  // Get user by ID (declared after specific routes so they match first)
+  // Email link clicked from the mailbox. Must stay above ":id",
+  // otherwise "confirm-update" would be read as a user id.
   @Get('confirm-update/:userId')
   async confirmUpdate(@Param('userId') userId: string) {
     return this.usersService.confirmUpdate(userId);
   }
 
+  // Get one user by id. Declared last so specific routes match first.
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return this.usersService.findById(id);

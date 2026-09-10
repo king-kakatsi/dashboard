@@ -22,37 +22,39 @@ const SportsNewsWidget = ({ widget }) => {
     { value: 'golf', label: 'Golf', icon: '⛳' },
   ];
 
+  // Loads news for one sport. useCallback keeps the same function
+  // between renders so the refresh timer below never resets by accident.
   const fetchNews = useCallback(async (sport) => {
-  setLoading(true);
-  setError(null);
-  
-  try {
-    // provide sport like queryparam
-    const [success, data] = await getFromApi(`widgets/${widget._id}/fetch?q=${sport}`);
-    
-    if (success && data?.success) {
-      setArticles(data.data.articles || []);
-    } else {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const [success, data] = await getFromApi(`widgets/${widget._id}/fetch?q=${sport}`);
+
+      if (success && data?.success) {
+        setArticles(data.data.articles || []);
+      } else {
+        setError('Cannot load news');
+        setArticles([]);
+      }
+    } catch {
       setError('Cannot load news');
       setArticles([]);
+    } finally {
+      setLoading(false);
     }
-  } catch {
-    setError('Cannot load news');
-    setArticles([]);
-  } finally {
-    setLoading(false);
-  }
   }, [widget._id]);
 
   useEffect(() => {
     fetchNews(selectedSport);
+    // Fallback to 5 minutes when the widget has no refresh setting.
     const refreshMs = (widget.refreshRate || 300) * 1000;
     const interval = setInterval(() => fetchNews(selectedSport), refreshMs);
     return () => clearInterval(interval);
   }, [selectedSport, fetchNews, widget.refreshRate]);
 
-  const handleSportChange = (e) => {
-    setSelectedSport(e.target.value);
+  const handleSportChange = (event) => {
+    setSelectedSport(event.target.value);
   };
 
   const formatDate = (dateString) => {
@@ -120,14 +122,14 @@ const SportsNewsWidget = ({ widget }) => {
           <div className="p-3 space-y-3">
             <div className="flex items-center justify-between mb-2 pb-2 border-b border-purple-500/20">
               <span className="text-xs text-purple-300 font-semibold uppercase tracking-wide">
-                Latest {sports.find(s => s.value === selectedSport)?.icon} {selectedSport} News
+                Latest {sports.find((sportChoice) => sportChoice.value === selectedSport)?.icon} {selectedSport} News
               </span>
               <span className="text-xs text-purple-400">{articles.length} articles</span>
             </div>
             
-            {articles.slice(0, 10).map((article, idx) => (
+            {articles.slice(0, 10).map((article, index) => (
               <a
-                key={idx}
+                key={index}
                 href={article.url}
                 target="_blank"
                 rel="noopener noreferrer"

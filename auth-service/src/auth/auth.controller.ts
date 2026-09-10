@@ -31,59 +31,62 @@ export class AuthController {
   ) {}
 
   @Post('register')
+  // Max 10 new accounts per minute: blocks robots, humans never notice.
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @UseInterceptors(
+    // Refuse uploads bigger than 5MB before they fill the memory.
     FileInterceptor('profile', { limits: { fileSize: 5 * 1024 * 1024 } }),
   )
   async register(
-    @Body() data: RegisterDto,
+    @Body() registerData: RegisterDto,
     @UploadedFile() file: Express.Multer.File,
-    @Res() res: Response,
+    @Res() response: Response,
   ) {
     try {
       if (file) {
         const isValid = this.authService.checkFile(file);
         if (!isValid) {
-          return res.status(400).json({ message: 'Invalid file type' });
+          return response.status(400).json({ message: 'Invalid file type' });
         }
 
         const imageUrl = await this.authService.uploadImage(file, 'profiles');
-        data.image = imageUrl;
+        registerData.image = imageUrl;
       }
 
-      const result = await this.authService.register(data);
+      const result = await this.authService.register(registerData);
 
-      res.cookie('access_token', result.access_token, {
+      response.cookie('access_token', result.access_token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
         maxAge: 24 * 60 * 60 * 1000,
       });
 
-      return res.status(201).json(result);
+      return response.status(201).json(result);
     } catch (error: any) {
-      return res.status(400).json({
+      return response.status(400).json({
         message: error.message || 'Registration failed',
       });
     }
   }
 
   @Post('login')
+  // Max 10 tries per minute: blocks password guessing.
   @Throttle({ default: { limit: 10, ttl: 60000 } })
-  async login(@Body() data: LoginDto, @Res() res: Response) {
+  async login(@Body() loginData: LoginDto, @Res() response: Response) {
     try {
-      const result = await this.authService.login(data);
+      const result = await this.authService.login(loginData);
 
-      res.cookie('access_token', result.access_token, {
+      response.cookie('access_token', result.access_token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
         maxAge: 24 * 60 * 60 * 1000,
       });
 
-      return res.status(200).json(result);
+      return response.status(200).json(result);
     } catch (error: any) {
-      return res.status(401).json({
+      return response.status(401).json({
         message: error.message || 'Login failed',
       });
     }
@@ -97,11 +100,11 @@ export class AuthController {
 
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
-  async googleAuthCallback(@Req() req: Request, @Res() res: Response) {
-    const user = req.user as any;
+  async googleAuthCallback(@Req() request: Request, @Res() response: Response) {
+    const user = request.user as any;
     const token = this.authService.generateJwtToken(user);
 
-    res.cookie('access_token', token, {
+    response.cookie('access_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
@@ -110,7 +113,7 @@ export class AuthController {
 
     const frontendUrl =
       this.configService.get('FRONTEND_URL') || 'http://localhost:5173';
-    return res.redirect(
+    return response.redirect(
       `${frontendUrl}/auth/callback?token=${token}&id=${user?.id}`,
     );
   }
@@ -123,11 +126,11 @@ export class AuthController {
 
   @Get('github/callback')
   @UseGuards(AuthGuard('github'))
-  async githubAuthCallback(@Req() req: Request, @Res() res: Response) {
-    const user = req.user as any;
+  async githubAuthCallback(@Req() request: Request, @Res() response: Response) {
+    const user = request.user as any;
     const token = this.authService.generateJwtToken(user);
 
-    res.cookie('access_token', token, {
+    response.cookie('access_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
@@ -136,7 +139,7 @@ export class AuthController {
 
     const frontendUrl =
       this.configService.get('FRONTEND_URL') || 'http://localhost:5173';
-    return res.redirect(
+    return response.redirect(
       `${frontendUrl}/auth/callback?token=${token}&id=${user?.id}`,
     );
   }
@@ -156,9 +159,9 @@ export class AuthController {
 
   @Post('logout')
   @UseGuards(CustomAuthGuard)
-  async logout(@Res() res: Response) {
-    res.clearCookie('access_token');
-    return res.status(200).json({ message: 'Logged out successfully' });
+  async logout(@Res() response: Response) {
+    response.clearCookie('access_token');
+    return response.status(200).json({ message: 'Logged out successfully' });
   }
 
   @Post('verify-email/:id')
@@ -168,14 +171,14 @@ export class AuthController {
   }
 
   @Get('confirm-email/:id')
-  async confirmEmail(@Param('id') id: string, @Res() res: Response) {
+  async confirmEmail(@Param('id') id: string, @Res() response: Response) {
     try {
       await this.authService.confirmMail(id);
       const frontendUrl =
         this.configService.get('FRONTEND_URL') || 'http://localhost:5173';
-      return res.redirect(`${frontendUrl}/email-confirmed`);
+      return response.redirect(`${frontendUrl}/email-confirmed`);
     } catch (error: any) {
-      return res.status(400).json({ message: error.message });
+      return response.status(400).json({ message: error.message });
     }
   }
 

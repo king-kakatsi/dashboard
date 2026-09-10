@@ -292,8 +292,9 @@ export class AuthService {
     if (!file.mimetype.startsWith('image/')) {
       throw new BadRequestException('Only image files are allowed');
     }
-    const maxSize = 5 * 1024 * 1024;
-    if (file.size > maxSize) {
+    // Second check after the upload filter: never trust one guard alone.
+    const maxImageBytes = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxImageBytes) {
       throw new BadRequestException('Image must be smaller than 5MB');
     }
     return true;

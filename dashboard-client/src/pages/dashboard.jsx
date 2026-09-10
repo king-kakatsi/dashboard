@@ -10,6 +10,7 @@ import SportsNewsWidget from "../components/news/FootNewsWidget";
 const CONNECTORS_BASE_URL =
   import.meta.env.VITE_API_URL_CONNECTOR || "http://localhost:3000";
 
+// Mongo stores "_id", local objects use "id": accept both everywhere.
 const getAppId = (app) => app._id || app.id;
 
 export default function Dashboard() {
@@ -26,13 +27,13 @@ export default function Dashboard() {
   }, []);
 
   const openApp = (app) => {
-    if (!openApps.find((a) => getAppId(a) === getAppId(app))) {
+    if (!openApps.find((openItem) => getAppId(openItem) === getAppId(app))) {
       setOpenApps([...openApps, app]);
     }
   };
 
   const closeApp = (id) => {
-    setOpenApps(openApps.filter((a) => getAppId(a) !== id));
+    setOpenApps(openApps.filter((openItem) => getAppId(openItem) !== id));
   };
 
   return (
@@ -70,7 +71,7 @@ export default function Dashboard() {
 
           {connectors.map((app) => (
             <button
-              key={app._id || app.id}
+              key={getAppId(app)}
               onClick={() => openApp(app)}
               className="relative hover:scale-110 transition-transform"
             >
@@ -117,7 +118,7 @@ const Window = ({ app, onClose, zIndex }) => {
 
   useEffect(() => {
     const fetchWidgets = async () => {
-      const data = await getWidgetsByService(app._id);
+      const data = await getWidgetsByService(getAppId(app));
       setWidgets(data);
     };
     fetchWidgets();
@@ -146,7 +147,7 @@ const Window = ({ app, onClose, zIndex }) => {
           {widgets.length > 0 ? (
             <div className="space-y-3">
               {widgets.map((widget) => (
-                <WidgetCard key={widget._id} widget={widget} app={app} />
+                <WidgetCard key={widget._id} widget={widget} />
               ))}
             </div>
           ) : (
@@ -158,26 +159,27 @@ const Window = ({ app, onClose, zIndex }) => {
   );
 };
 
-// Generic widget card
-const WidgetCard = ({ widget, app }) => {
+// One clickable card per widget. Clicking loads its live content.
+const WidgetCard = ({ widget }) => {
   const [data, setData] = useState(null);
   const [isLoading, setLoading] = useState(false);
   const [weather, setWeather] = useState(null);
 
   if (widget?.name === "Sports News") {
-    return <SportsNewsWidget widget={widget} app={app} />;
+    return <SportsNewsWidget widget={widget} />;
   }
 
   const fetchWidgetData = async () => {
     setLoading(true);
     try {
-      let res = await getFromApi(
+      // getFromApi answers [worked, payload]: unpack both names at once.
+      const [worked, payload] = await getFromApi(
         `${CONNECTORS_BASE_URL}/widgets/${widget._id}/fetch`
       );
-      if (res[0] === true && res[1].data) {
-        setWeather(res[1].data);
+      if (worked === true && payload.data) {
+        setWeather(payload.data);
       } else {
-        setData(res);
+        setData(payload);
       }
     } catch {
       setData({ error: "Cannot load widget" });

@@ -19,6 +19,7 @@ export class ProxyController {
     @Res() res: Response,
   ) {
     try {
+      // Only public web addresses allowed: blocks "file://", plain hostnames, etc.
       if (!baseUrl || !/^https?:\/\/.+/i.test(baseUrl)) {
         return res
           .status(400)
@@ -48,7 +49,7 @@ export class ProxyController {
           );
           accessToken = tokenResponse.data?.access_token || null;
         } catch {
-          accessToken = null;
+          // No token available: public content still works, private content redirects below.
         }
       }
 

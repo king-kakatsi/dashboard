@@ -14,48 +14,57 @@ function validRegistration() {
 
 describe('RegisterDto validation', () => {
   it('accepts a valid registration payload', async () => {
-    const dto = plainToInstance(RegisterDto, validRegistration());
-    await expect(validate(dto)).resolves.toEqual([]);
+    const registration = plainToInstance(RegisterDto, validRegistration());
+    await expect(validate(registration)).resolves.toEqual([]);
   });
 
   it('rejects an invalid email', async () => {
-    const dto = plainToInstance(RegisterDto, {
+    const registration = plainToInstance(RegisterDto, {
       ...validRegistration(),
       email: 'not-an-email',
     });
-    const errors = await validate(dto);
-    expect(errors.some((e) => e.property === 'email')).toBe(true);
+    const errors = await validate(registration);
+    expect(
+      errors.some((validationError) => validationError.property === 'email'),
+    ).toBe(true);
   });
 
   it('rejects a short username', async () => {
-    const dto = plainToInstance(RegisterDto, {
+    const registration = plainToInstance(RegisterDto, {
       ...validRegistration(),
       username: 'ab',
     });
-    const errors = await validate(dto);
-    expect(errors.some((e) => e.property === 'username')).toBe(true);
+    const errors = await validate(registration);
+    expect(
+      errors.some((validationError) => validationError.property === 'username'),
+    ).toBe(true);
   });
 
   it('rejects a weak password without uppercase, digit or symbol', async () => {
-    const dto = plainToInstance(RegisterDto, {
+    const registration = plainToInstance(RegisterDto, {
       ...validRegistration(),
       password: 'weakpassword',
       passwordConfirmation: 'weakpassword',
     });
-    const errors = await validate(dto);
-    expect(errors.some((e) => e.property === 'password')).toBe(true);
-    expect(errors.some((e) => e.property === 'passwordConfirmation')).toBe(
-      true,
-    );
+    const errors = await validate(registration);
+    expect(
+      errors.some((validationError) => validationError.property === 'password'),
+    ).toBe(true);
+    expect(
+      errors.some(
+        (validationError) =>
+          validationError.property === 'passwordConfirmation',
+      ),
+    ).toBe(true);
   });
 
   it('rejects a short password', async () => {
-    const dto = plainToInstance(RegisterDto, {
+    const registration = plainToInstance(RegisterDto, {
       ...validRegistration(),
       password: 'Aa1!',
       passwordConfirmation: 'Aa1!',
     });
-    const errors = await validate(dto);
+    const errors = await validate(registration);
     expect(errors.length).toBeGreaterThan(0);
   });
 
@@ -67,25 +76,31 @@ describe('RegisterDto validation', () => {
 
 describe('LoginDto validation', () => {
   it('accepts a valid login payload', async () => {
-    const dto = plainToInstance(LoginDto, {
+    const loginAttempt = plainToInstance(LoginDto, {
       email: 'user@example.com',
       password: 'anything',
     });
-    await expect(validate(dto)).resolves.toEqual([]);
+    await expect(validate(loginAttempt)).resolves.toEqual([]);
   });
 
   it('rejects an invalid email', async () => {
-    const dto = plainToInstance(LoginDto, {
+    const loginAttempt = plainToInstance(LoginDto, {
       email: 'not-an-email',
       password: 'anything',
     });
-    const errors = await validate(dto);
-    expect(errors.some((e) => e.property === 'email')).toBe(true);
+    const errors = await validate(loginAttempt);
+    expect(
+      errors.some((validationError) => validationError.property === 'email'),
+    ).toBe(true);
   });
 
   it('rejects a missing password', async () => {
-    const dto = plainToInstance(LoginDto, { email: 'user@example.com' });
-    const errors = await validate(dto);
-    expect(errors.some((e) => e.property === 'password')).toBe(true);
+    const loginAttempt = plainToInstance(LoginDto, {
+      email: 'user@example.com',
+    });
+    const errors = await validate(loginAttempt);
+    expect(
+      errors.some((validationError) => validationError.property === 'password'),
+    ).toBe(true);
   });
 });

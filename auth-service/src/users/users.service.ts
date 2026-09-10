@@ -154,7 +154,9 @@ export class UsersService {
     newEmail?: string,
     newUsername?: string,
   ) {
-    const confirmationLink = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/confirm-update/${userId}`;
+    // Local fallback so the mailed link is never "undefined/...".
+    const frontendBaseUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const confirmationLink = `${frontendBaseUrl}/confirm-update/${userId}`;
 
     const emailHtml = EmailTemplateUtil.getUpdateConfirmationEmail(
       username,

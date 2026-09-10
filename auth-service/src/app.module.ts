@@ -19,6 +19,7 @@ import { GatewayModule } from './gateway/gateway.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    // Max 100 requests per minute per address, everywhere in this service.
     ThrottlerModule.forRoot([
       {
         ttl: 60000,

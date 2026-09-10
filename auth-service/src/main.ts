@@ -2,8 +2,10 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
-import cookieParser from 'cookie-parser'; // CHANGED: default import instead of namespace
+import cookieParser from 'cookie-parser';
 
+// Stop the server right away if a secret is missing,
+// instead of crashing later with a strange error.
 function assertRequiredEnv() {
   const required = [
     'DATABASE_URL',
@@ -24,8 +26,10 @@ async function bootstrap() {
   assertRequiredEnv();
   const app = await NestFactory.create(AppModule);
 
+  // Security headers for every response.
   app.use(helmet());
   app.use(cookieParser());
+  // Reject unknown fields and convert types automatically.
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
