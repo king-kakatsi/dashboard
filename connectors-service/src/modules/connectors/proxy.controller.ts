@@ -19,7 +19,12 @@ export class ProxyController {
     @Res() res: Response,
   ) {
     try {
-      const fullUrl = `${baseUrl.replace(/\/$/, '')}/${endpoint.replace(/^\//, '')}`;
+      if (!baseUrl || !/^https?:\/\/.+/i.test(baseUrl)) {
+        return res
+          .status(400)
+          .json({ error: 'Invalid baseUrl query parameter' });
+      }
+      const fullUrl = `${baseUrl.replace(/\/$/, '')}/${(endpoint || '').replace(/^\//, '')}`;
       const authServiceUrl =
         this.configService.get<string>('AUTH_SERVICE_URL') ||
         'http://localhost:3001';
@@ -43,13 +48,12 @@ export class ProxyController {
           );
           accessToken = tokenResponse.data?.access_token || null;
         } catch {
-          console.log('No token found for secure Google API.');
+          accessToken = null;
         }
       }
 
       //If Gmail and no token, redirect to Google Auth
       if (requiresAuth && !accessToken) {
-        console.log('Redirecting to Google login for secure widget...');
         return res.redirect(`${authServiceUrl}/auth/google`);
       }
 
@@ -85,90 +89,6 @@ export class ProxyController {
         res.setHeader('Content-Type', 'text/html');
         return res.send(html);
       }
-      //weather
-      // if (fullUrl.includes('https://api.openweathermap.org')) {
-      //   const feed = await this.parser.parseURL(fullUrl);
-
-      //   const articles = feed.items.slice(0, 5).map((item) => ({
-      //     title: item.title,
-      //     link: item.link,
-      //     source: item.creator || item.author || 'Unknown source',
-      //   }));
-
-      //   const html = `
-      //     <html>
-      //       <body style="font-family:Arial, sans-serif; padding:10px;">
-      //         <h3>Latest News:</h3>
-      //         <ul>
-      //           ${articles
-      //             .map(
-      //               (a) => `
-      //             <li style="margin-bottom:10px;">
-      //               <a href="${a.link}" target="_blank">${a.title}</a>
-      //               <br><small>${a.source}</small>
-      //             </li>`,
-      //             )
-      //             .join('')}
-      //         </ul>
-      //       </body>
-      //     </html>
-      //   `;
-
-      //   res.setHeader('Content-Type', 'text/html');
-      //   return res.send(html);
-      // }
-
-      //   if (fullUrl.includes('https://api.openweathermap.org')) {
-      //     try {
-      //       const feed = await this.parser.parseURL(fullUrl);
-
-      //       const articles = feed.items.slice(0, 5).map((item) => ({
-      //         title: item.title,
-      //         link: item.link,
-      //         source: item.creator || item.author || 'Unknown source',
-      //       }));
-
-      //       const html = `
-      //   <html>
-      //     <head>
-      //       <meta charset="UTF-8">
-      //       <title>Latest Weather Updates</title>
-      //       <style>
-      //         body { font-family: Arial, sans-serif; padding: 20px; background: #f8f9fa; }
-      //         h3 { color: #333; }
-      //         ul { list-style: none; padding: 0; }
-      //         li { margin-bottom: 12px; }
-      //         a { text-decoration: none; color: #007bff; }
-      //         a:hover { text-decoration: underline; }
-      //         small { color: #555; }
-      //       </style>
-      //     </head>
-      //     <body>
-      //       <h3>Latest Weather Updates:</h3>
-      //       <ul>
-      //         ${articles
-      //           .map(
-      //             (a) => `
-      //           <li>
-      //             <a href="${a.link}" target="_blank">${a.title}</a><br>
-      //             <small>${a.source}</small>
-      //           </li>
-      //         `,
-      //           )
-      //           .join('')}
-      //       </ul>
-      //     </body>
-      //   </html>
-      // `;
-
-      //       res.setHeader('Content-Type', 'text/html');
-      //       return res.send(html);
-      //     } catch (error) {
-      //       console.error('Error fetching feed:', error);
-      //       res.status(500).send('<h1>Error loading weather feed</h1>');
-      //     }
-      //   }
-
       //Gmail (Requires authentication)
       if (fullUrl.includes('gmail.googleapis.com')) {
         const response = await axios.get(fullUrl, {
@@ -253,7 +173,6 @@ export class ProxyController {
       );
 
       const accessToken = tokenResponse.data.access_token;
-      console.log('Google access token received:', !!accessToken);
 
       const frontendUrl =
         this.configService.get('FRONTEND_URL') || 'http://localhost:5173';

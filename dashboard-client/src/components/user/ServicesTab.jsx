@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getAllConnectors, activateConnector, deactivateConnector } from '../../controllers/connectorController';
 import { fetchFromLocalStorage } from '../../services/localStorageService';
 
-const ServicesTab = ({ services }) => {
+const ServicesTab = () => {
   const [allConnectors, setAllConnectors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [processingIds, setProcessingIds] = useState(new Set());

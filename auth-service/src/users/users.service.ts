@@ -1,4 +1,3 @@
-
 import {
   Injectable,
   NotFoundException,
@@ -91,7 +90,6 @@ export class UsersService {
       return { message: 'Confirmation email sent. Please check your inbox.' };
     }
 
-
     // Regular update for other fields
     const updatedUser = await prisma.user.update({
       where: { id },
@@ -156,7 +154,7 @@ export class UsersService {
     newEmail?: string,
     newUsername?: string,
   ) {
-    const confirmationLink = `${process.env.FRONTEND_URL}/confirm-update/${userId}`;
+    const confirmationLink = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/confirm-update/${userId}`;
 
     const emailHtml = EmailTemplateUtil.getUpdateConfirmationEmail(
       username,
@@ -165,16 +163,12 @@ export class UsersService {
       newUsername,
     );
 
-    console.log('Update confirmation email would be sent to:', currentEmail);
-    console.log('Confirmation link:', confirmationLink);
-    
     return this.mailService.sendMail({
-      from: 'kingiscoding@gmail.com',
+      from: process.env.MAIL_FROM || process.env.MAIL_USER,
       to: currentEmail,
       subject: 'Confirm Your Account Update - Dashboard',
       html: emailHtml,
     });
-
   }
 
   async delete(id: string) {

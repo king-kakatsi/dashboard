@@ -13,7 +13,7 @@ const Profile = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [errors, setErrors] = useState(null);
-  const [success, setSuccess] = useState(null);
+  const [success] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

@@ -1,9 +1,9 @@
 
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { getFromApi } from '../../services/axiosService';
 
-const SportsNewsWidget = ({ widget, app }) => {
+const SportsNewsWidget = ({ widget }) => {
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedSport, setSelectedSport] = useState('soccer');
@@ -22,7 +22,7 @@ const SportsNewsWidget = ({ widget, app }) => {
     { value: 'golf', label: 'Golf', icon: '⛳' },
   ];
 
-  const fetchNews = async (sport) => {
+  const fetchNews = useCallback(async (sport) => {
   setLoading(true);
   setError(null);
   
@@ -36,20 +36,20 @@ const SportsNewsWidget = ({ widget, app }) => {
       setError('Cannot load news');
       setArticles([]);
     }
-  } catch (err) {
-    console.error('Error fetching news:', err);
+  } catch {
     setError('Cannot load news');
     setArticles([]);
   } finally {
     setLoading(false);
   }
-};
+  }, [widget._id]);
 
   useEffect(() => {
     fetchNews(selectedSport);
-    const interval = setInterval(() => fetchNews(selectedSport), widget.refreshRate * 1000);
+    const refreshMs = (widget.refreshRate || 300) * 1000;
+    const interval = setInterval(() => fetchNews(selectedSport), refreshMs);
     return () => clearInterval(interval);
-  }, [selectedSport]);
+  }, [selectedSport, fetchNews, widget.refreshRate]);
 
   const handleSportChange = (e) => {
     setSelectedSport(e.target.value);

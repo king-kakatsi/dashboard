@@ -25,11 +25,6 @@ export class ConnectorsController {
     return this.connectorsService.findAll();
   }
 
-  // @Get(':id')
-  // async findOne(@Param('id') id: string) {
-  //   return this.connectorsService.findOne(id);
-  // }
-
   @Put(':id')
   async update(
     @Param('id') id: string,

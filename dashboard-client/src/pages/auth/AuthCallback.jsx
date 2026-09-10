@@ -9,7 +9,6 @@ export const AuthCallback = () => {
   useEffect(() => {
     const token = searchParams.get('token');
     const id = searchParams.get('id');
-    // console.log("DEBUG oatuth token received", token)
     if (token) {
       // Save token to localStorage
       saveInLocalStorage('access_token', token)
@@ -19,7 +18,6 @@ export const AuthCallback = () => {
       navigate('/', { replace: true });
     } else {
       // No token found, redirect to login
-      console.error('No token received from OAuth');
       navigate('/login', { replace: true });
     }
   }, [searchParams, navigate]);

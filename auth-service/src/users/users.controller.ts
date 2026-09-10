@@ -34,7 +34,12 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
-  // Get user by ID
+  // Get user by ID (declared after specific routes so they match first)
+  @Get('confirm-update/:userId')
+  async confirmUpdate(@Param('userId') userId: string) {
+    return this.usersService.confirmUpdate(userId);
+  }
+
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return this.usersService.findById(id);
@@ -47,14 +52,6 @@ export class UsersController {
     @Body() updateUserDto: UpdateUserDto,
   ) {
     return this.usersService.update(user.id, updateUserDto);
-  }
-
-  /**
-   * Confirm update (no auth needed, just user ID in URL)
-   */
-  @Get('confirm-update/:userId')
-  async confirmUpdate(@Param('userId') userId: string) {
-    return this.usersService.confirmUpdate(userId);
   }
 
   // Update any user (admin only)

@@ -216,7 +216,10 @@ export class AuthService {
     }
 
     const bcrypt = require('bcrypt');
-    const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+    const isPasswordValid = await bcrypt.compare(
+      currentPassword,
+      user.password,
+    );
 
     if (!isPasswordValid) {
       throw new BadRequestException('Current password is incorrect');
@@ -249,7 +252,9 @@ export class AuthService {
     );
 
     return this.mailService.sendMail({
-      from: 'kingiscoding@gmail.com',
+      from:
+        this.configService.get('MAIL_FROM') ||
+        this.configService.get('MAIL_USER'),
       to: user.email,
       subject: 'Verify Your Email - Dashboard',
       html: htmlContent,
@@ -286,6 +291,10 @@ export class AuthService {
     }
     if (!file.mimetype.startsWith('image/')) {
       throw new BadRequestException('Only image files are allowed');
+    }
+    const maxSize = 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+      throw new BadRequestException('Image must be smaller than 5MB');
     }
     return true;
   }

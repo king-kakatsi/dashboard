@@ -2,7 +2,7 @@ import axios from "axios";
 import { fetchFromLocalStorage } from "./localStorageService";
 
 
-const baseURL = 'http://localhost:3000/'
+const baseURL = import.meta.env.VITE_API_URL_CONNECTOR || 'http://localhost:3000/'
 
 /**
  * *Axios instance for using axiosService endpoints*
@@ -21,7 +21,6 @@ export function refreshAxios(){
 
   axiosService.interceptors.request.use((config) => {
     const token = fetchFromLocalStorage('access_token')
-    // console.log('DEBUG - axios service', token);
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
@@ -39,14 +38,18 @@ export function refreshAxios(){
  * @returns
  */
 export async function getFromApi(endPoint) {
-    const result = await axiosService.get(endPoint);
-    if (result.status === 200) {
-        const data = result.data;
-        if(data){
-            return [true, data]
-        }
+    try {
+      const result = await axiosService.get(endPoint);
+      if (result.status === 200) {
+          const data = result.data;
+          if(data){
+              return [true, data]
+          }
+      }
+      return [false, result.data?.errors];
+    } catch(error){
+      return [false, error.response?.data || { message: 'Request failed' }];
     }
-    return [false, result.data?.errors];
 }
 
 
@@ -71,8 +74,7 @@ export async function postWithApi(endPoint, data = null, successStatus = 200) {
     if (result.status === successStatus) return [true, result.data]
     return [false, result.data]
   }catch(error){
-    console.log(error)
-      return[false,error.response.data]
+      return[false,error.response?.data || { message: 'Request failed' }]
   }
 }
 
@@ -103,7 +105,6 @@ export async function updateWithApi(endPoint, id = null, data, autoJoin = true) 
         }
         return [false, result.data];
       } catch (error) {
-        console.error('Update API Error:', error);
         return [false, error.response?.data || { message: 'Update failed' }];
       }
     }
@@ -127,7 +128,7 @@ export async function deleteWithApi(endPoint, id, successCode = 204) {
           if (result.status === successCode) return [true, result.data]
           return [false, result.data]
         } catch (error) {
-          return [false, error.response.data]
+          return [false, error.response?.data || { message: 'Delete failed' }]
         }
     }
     return false;
@@ -146,6 +147,6 @@ export async function deleteAllWithApi(endPoint) {
     if (result.status === 204) return [true, result.data]
     return [false, result.data]
   } catch (error) {
-    return [false, error.response.data]
+    return [false, error.response?.data || { message: 'Delete failed' }]
   }
 }

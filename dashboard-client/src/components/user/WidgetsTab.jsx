@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getAllWidgets, activateWidget, deactivateWidget } from '../../controllers/widgetController';
 import { fetchFromLocalStorage } from '../../services/localStorageService';
 
-const WidgetsTab = ({ widgets }) => {
+const WidgetsTab = () => {
   const [allWidgets, setAllWidgets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [processingIds, setProcessingIds] = useState(new Set());

@@ -12,7 +12,7 @@ export class GatewayService {
     // Get connectors service URL from .env or use default
     const connectorsUrl = this.configService.get<string>(
       'CONNECTORS_SERVICE_URL',
-      'http://localhost:3001',
+      'http://localhost:3000',
     );
 
     // Create HTTP client for connectors-service
@@ -122,7 +122,7 @@ export class GatewayService {
   // ===== Dashboard Method =====
   async getUserDashboard(userId: string) {
     try {
-      // Récupère connectors et widgets en parallèle pour optimiser
+      // Fetch connectors and widgets in parallel
       const [connectors, widgets] = await Promise.all([
         this.getConnectors(userId),
         this.getWidgets(userId),
@@ -133,7 +133,6 @@ export class GatewayService {
         widgets,
       };
     } catch (error) {
-      // console.log('================\nDEBUG - gateway.service > getUserDashboard: ' + error);
       this.logger.error('Failed to fetch dashboard data');
       throw new HttpException('Failed to fetch dashboard data', 500);
     }

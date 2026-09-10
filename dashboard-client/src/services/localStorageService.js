@@ -34,8 +34,7 @@ export function fetchFromLocalStorage(key) {
         } else {
             return false;
         }
-    } catch (ex) {
-        console.log(ex);
+    } catch {
         return false;
     }
 }

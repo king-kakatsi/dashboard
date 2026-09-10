@@ -15,9 +15,11 @@ import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { UpdatePasswordDto } from '../users/dto/update-password.dto';
 import { CustomAuthGuard } from './guards/auth.guard';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { Throttle } from '@nestjs/throttler';
 import { ConfigService } from '@nestjs/config';
 import type { Request, Response } from 'express';
 
@@ -29,7 +31,10 @@ export class AuthController {
   ) {}
 
   @Post('register')
-  @UseInterceptors(FileInterceptor('profile'))
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
+  @UseInterceptors(
+    FileInterceptor('profile', { limits: { fileSize: 5 * 1024 * 1024 } }),
+  )
   async register(
     @Body() data: RegisterDto,
     @UploadedFile() file: Express.Multer.File,
@@ -64,6 +69,7 @@ export class AuthController {
   }
 
   @Post('login')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   async login(@Body() data: LoginDto, @Res() res: Response) {
     try {
       const result = await this.authService.login(data);
@@ -104,7 +110,9 @@ export class AuthController {
 
     const frontendUrl =
       this.configService.get('FRONTEND_URL') || 'http://localhost:5173';
-    return res.redirect(`${frontendUrl}/auth/callback?token=${token}&id=${user?.id}`);
+    return res.redirect(
+      `${frontendUrl}/auth/callback?token=${token}&id=${user?.id}`,
+    );
   }
 
   @Get('github')
@@ -126,10 +134,11 @@ export class AuthController {
       maxAge: 24 * 60 * 60 * 1000,
     });
 
-    // console.log('\n\n\n\nDEBUG oAuth token =====================', token);
     const frontendUrl =
       this.configService.get('FRONTEND_URL') || 'http://localhost:5173';
-    return res.redirect(`${frontendUrl}/auth/callback?token=${token}&id=${user?.id}`);
+    return res.redirect(
+      `${frontendUrl}/auth/callback?token=${token}&id=${user?.id}`,
+    );
   }
 
   @Get('me')
@@ -170,15 +179,12 @@ export class AuthController {
     }
   }
 
-
-  
   @Put('change-password')
   @UseGuards(CustomAuthGuard)
   async changePassword(
     @CurrentUser() user: any,
-    @Body() body: { currentPassword: string; newPassword: string },
+    @Body() body: UpdatePasswordDto,
   ) {
-    console.log("==========================", user);
     return this.authService.changePassword(
       user.id,
       body.currentPassword,
