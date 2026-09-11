@@ -25,6 +25,21 @@ Open `http://localhost:5173`, register, confirm your email, activate connectors.
 - macOS-style dock interface with responsive mobile navigation
 - 179 unit and 20 integration tests at about 99 percent line coverage
 
+## Screenshots
+
+### Dashboard Home
+![Dashboard home view](./docs/screenshots/home_dashboard.png)
+
+### Widget view
+![view for widget](./docs/screenshots/widget_dashboard.png)
+
+### User profile
+![User space](./docs/screenshots/dashboard_profile.png)
+
+### Sign Up
+![register user](./docs/screenshots/register_dashboard.png)
+
+
 ## Tech Stack
 
 - Frontend: React 19, Vite 7, Tailwind CSS 4, react-router-dom 7
