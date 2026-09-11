@@ -14,6 +14,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     });
   }
 
+  /** Turns a verified JWT payload into the session user, or rejects unknowns. */
   async validate(payload: any) {
     const user = await prisma.user.findUnique({
       where: { id: payload.userId },

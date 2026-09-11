@@ -23,6 +23,13 @@ export class GatewayController {
   }
 
   // ===== Connectors Routes =====
+  /**
+   * Lists connectors, preferring the personal view.
+   *
+   * Falls back to the public catalog when the user id is unusable. The
+   * fallback only catches immediate failures; a rejected promise still
+   * propagates to the global error handler.
+   */
   @Get('connectors')
   getConnectors(@Request() req) {
     try {

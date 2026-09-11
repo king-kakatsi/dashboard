@@ -12,6 +12,15 @@ export class ProxyController {
     this.parser = new Parser();
   }
 
+  /**
+   * Fetches an outside URL on behalf of a widget.
+   *
+   * Google hosts needing a user token redirect to Google login when the
+   * token is missing. News feeds and Gmail come back as ready-to-show HTML;
+   * every other API passes its JSON through untouched. Only http(s) targets
+   * are allowed, and upstream failures answer 500 with details (401s from
+   * Google redirect to login instead).
+   */
   @Get()
   async proxy(
     @Query('baseUrl') baseUrl: string,
@@ -153,6 +162,12 @@ export class ProxyController {
     }
   }
 
+  /**
+   * Swaps a Google authorization code for tokens, then returns home.
+   *
+   * Note the tokens are only logged, never stored here: long-term storage
+   * happens in the auth-service during OAuth login, not in this callback.
+   */
   @Get('callback')
   async googleCallback(@Query('code') code: string, @Res() res: Response) {
     try {

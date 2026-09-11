@@ -3,6 +3,7 @@ import { Controller, Get } from '@nestjs/common';
 @Controller('widgets')
 export class GoogleController {
   //gmail widget
+  /** Returns three fixed demo messages, never live mail. */
   @Get('gmail')
   async getGmailInbox() {
     // simulation
@@ -18,6 +19,7 @@ export class GoogleController {
   }
 
   //translate widget
+  /** Describes the translate widget with a fixed example. */
   @Get('translate')
   async getTranslateWidget() {
     return {

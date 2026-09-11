@@ -24,6 +24,12 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     });
   }
 
+  /**
+   * Hands the Google profile plus tokens to the account linker.
+   *
+   * Merges tokens into the profile because Passport delivers them as
+   * separate arguments. Reports failures through done() the Passport way.
+   */
   async validate(
     accessToken: string,
     refreshToken: string,

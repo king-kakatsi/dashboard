@@ -2,6 +2,12 @@ import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { saveInLocalStorage } from '../../services/localStorageService';
 
+/**
+ * Completes the OAuth handoff from the backend redirect.
+ *
+ * Saves the query token and user id into local storage, then replaces the
+ * history entry so the token leaves the address bar immediately.
+ */
 export const AuthCallback = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();

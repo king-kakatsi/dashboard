@@ -14,6 +14,14 @@ export class CustomAuthGuard implements CanActivate {
     private reflector: Reflector,
   ) {}
 
+  /**
+   * Lets a request through with a token from header or cookie.
+   *
+   * Accepts `Authorization: Bearer` first, then the access_token cookie, so
+   * API clients and the browser share one guard. Role checks live here too:
+   * any failure, including a wrong role, becomes 401 to reveal nothing
+   * about which check failed.
+   */
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     let token: string | null = null;

@@ -37,6 +37,13 @@ export class AuthController {
     // Refuse uploads bigger than 5MB before they fill the memory.
     FileInterceptor('profile', { limits: { fileSize: 5 * 1024 * 1024 } }),
   )
+  /**
+   * Registers an account and starts its session.
+   *
+   * The profile picture is optional: when present it is validated, uploaded,
+   * and stored as a URL before registration. The token goes in an httpOnly
+   * cookie and in the body, so browser and API clients both work.
+   */
   async register(
     @Body() registerData: RegisterDto,
     @UploadedFile() file: Express.Multer.File,
@@ -100,6 +107,13 @@ export class AuthController {
 
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
+  /**
+   * Finishes the Google OAuth dance.
+   *
+   * Passport already verified the profile at this point. The token travels
+   * two ways: an httpOnly cookie for the browser, and query params for the
+   * AuthCallback page, which saves them into local storage.
+   */
   async googleAuthCallback(@Req() request: Request, @Res() response: Response) {
     const user = request.user as any;
     const token = this.authService.generateJwtToken(user);

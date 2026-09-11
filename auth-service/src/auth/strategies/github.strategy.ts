@@ -20,6 +20,7 @@ export class GithubStrategy extends PassportStrategy(Strategy, 'github') {
     });
   }
 
+  /** Same handoff as GoogleStrategy, for GitHub profiles. */
   async validate(
     accessToken: string,
     refreshToken: string,

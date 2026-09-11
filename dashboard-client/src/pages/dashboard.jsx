@@ -160,6 +160,13 @@ const Window = ({ app, onClose, zIndex }) => {
 };
 
 // One clickable card per widget. Clicking loads its live content.
+/**
+ * Shows one widget and loads its live data on click.
+ *
+ * Sports News renders its own polling view instead. Other widgets fetch
+ * once per click into weather, raw, or error states, each drawn
+ * differently below the card.
+ */
 const WidgetCard = ({ widget }) => {
   const [data, setData] = useState(null);
   const [isLoading, setLoading] = useState(false);

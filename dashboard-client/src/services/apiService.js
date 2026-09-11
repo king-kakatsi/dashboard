@@ -24,6 +24,14 @@ export const getWidgets = async() => {
     return response.data;
 };
 
+/**
+ * Lists a connector's widgets using the session cookie.
+ *
+ * Unlike the axios services it sends no Bearer header and relies on
+ * cookies instead, which is why it uses fetch with credentials included.
+ *
+ * @param {string} serviceId Connector whose widgets to list
+ */
 export async function getWidgetsByService(serviceId) {
     const res = await fetch(`${URL}/widgets/service/${serviceId}`, {
         method: 'GET',

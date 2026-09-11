@@ -13,6 +13,11 @@ export class EmailTemplateUtil {
    * @param templateName - Name of the template file (without .html)
    * @param variables - Object with key-value pairs to replace {{key}} in template
    */
+  /**
+   * Fills {{key}} placeholders in an HTML template.
+   *
+   * @throws Error When the template file does not exist
+   */
   static loadTemplate(
     templateName: string,
     variables: Record<string, string>,
@@ -50,6 +55,13 @@ export class EmailTemplateUtil {
     });
   }
 
+  /**
+   * Builds the email-change confirmation with optional blocks.
+   *
+   * Sections wrapped in {{#if newEmail}} style markers are kept only when
+   * that value exists, so one template serves email-only, username-only,
+   * and combined changes.
+   */
   static getUpdateConfirmationEmail(
     username: string,
     confirmationLink: string,

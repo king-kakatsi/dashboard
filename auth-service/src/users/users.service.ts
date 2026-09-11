@@ -17,6 +17,12 @@ export class UsersService {
     // private readonly emailService: EmailService,
   ) {}
 
+  /**
+   * Loads one user without secrets.
+   *
+   * Password and OAuth tokens are stripped before returning, so controllers
+   * can safely send the result to the browser.
+   */
   async findById(id: string) {
     const user = await prisma.user.findUnique({
       where: { id },
@@ -45,6 +51,17 @@ export class UsersService {
 
   /**
    * UPDATE METHOD - Now handles standBy fields
+   */
+  /**
+   * Updates a profile, either directly or through email confirmation.
+   *
+   * Plain fields apply immediately and return the updated user. A
+   * standByEmail is only staged after a uniqueness check, then confirmed
+   * later by confirmUpdate: that branch returns a message instead of a
+   * user, so callers must handle both shapes.
+   *
+   * @throws {NotFoundException} When the user does not exist
+   * @throws {ConflictException} When the staged email belongs to someone else
    */
   async update(
     id: string,
@@ -109,6 +126,15 @@ export class UsersService {
 
   /**
    * NEW METHOD - Confirm update by applying standBy values
+   */
+  /**
+   * Applies the staged email or username change.
+   *
+   * Copies standBy values onto the live fields and clears them, so replaying
+   * the confirmation link finds nothing left and fails loudly instead of
+   * silently succeeding twice.
+   *
+   * @throws {NotFoundException} When the user is missing or nothing is pending
    */
   async confirmUpdate(userId: string) {
     const user = await prisma.user.findUnique({ where: { id: userId } });

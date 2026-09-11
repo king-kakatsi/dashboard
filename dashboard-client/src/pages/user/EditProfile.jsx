@@ -63,6 +63,13 @@ const EditProfile = () => {
     }));
   };
 
+  /**
+   * Sends only what changed, as staged values.
+   *
+   * Unchanged fields are left out entirely, and edits become standBy entries
+   * the backend applies after email confirmation: nothing here takes effect
+   * immediately.
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);

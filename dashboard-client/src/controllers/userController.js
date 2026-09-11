@@ -6,9 +6,14 @@ const AUTH_ENDPOINT = 'auth/';
 
 
 /**
- * Register the user
- * @param {object} userData 
- * @returns {Promise<[boolean, object]>}
+ * Registers with email or hands off to Google/GitHub.
+ *
+ * Provider methods leave the page for the OAuth flow and never return a
+ * tuple, while email registration answers the usual [worked, payload].
+ * Callers must handle the redirect case having no return value.
+ *
+ * @param {object} userData Form fields for email registration, or null
+ * @param {string} method 'google', 'github', or null for email
  */
 export async function register(userData = null, method = null){
     if (method === 'google'){
@@ -27,9 +32,13 @@ export async function register(userData = null, method = null){
 
 
 /**
- * Login the user
- * @param {object} userData 
- * @returns {Promise<[boolean, object]>}
+ * Logs in with email or hands off to Google/GitHub.
+ *
+ * Same split contract as register: provider methods redirect and return
+ * nothing, email login answers [worked, payload].
+ *
+ * @param {object} userData Credentials for email login, or null
+ * @param {string} method 'google', 'github', or null for email
  */
 export async function login(userData = null, method = null){
     if (method === 'google'){

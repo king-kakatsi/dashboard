@@ -20,6 +20,7 @@ import { EmailTemplateUtil } from 'src/common/utils/emailTemplate.utils';
 
 @Injectable()
 export class AuthService {
+  // AES-256 needs exactly 32 bytes: longer keys are cut, shorter ones fail.
   private readonly encryptionKey: Buffer;
 
   constructor(
@@ -34,6 +35,18 @@ export class AuthService {
     this.encryptionKey = Buffer.from(key, 'utf-8').slice(0, 32);
   }
 
+  /**
+   * Creates a local account and logs it in immediately.
+   *
+   * Rejects taken emails, hashes the password with bcrypt, stores the user,
+   * sends the verification email, then returns a token with the user minus
+   * secrets. The account works before verification; some features wait for it.
+   *
+   * @param data Validated registration payload
+   * @returns Token plus sanitized user
+   * @throws {ConflictException} When the email is already registered
+   * @throws {BadRequestException} When the two passwords differ
+   */
   async register(data: RegisterDto) {
     const existingUser = await prisma.user.findUnique({
       where: { email: data.email },
@@ -68,6 +81,16 @@ export class AuthService {
     };
   }
 
+  /**
+   * Logs in with email and password.
+   *
+   * Every failure answers the same message on purpose: distinct messages
+   * would let attackers guess which emails exist.
+   *
+   * @param data Validated login payload
+   * @returns Token plus sanitized user
+   * @throws {UnauthorizedException} When credentials are wrong or OAuth-only
+   */
   async login(data: LoginDto) {
     const user = await prisma.user.findUnique({
       where: { email: data.email },
@@ -94,6 +117,19 @@ export class AuthService {
     };
   }
 
+  /**
+   * Links a Google or GitHub profile to an account.
+   *
+   * First visit creates a verified user with encrypted provider tokens.
+   * Returning visits only refresh the tokens and picture. An email already
+   * taken by another provider is rejected so accounts cannot be hijacked.
+   *
+   * @param profile Passport profile merged with access and refresh tokens
+   * @param provider OAuth provider name, like 'google' or 'github'
+   * @returns The linked user, with tokens still encrypted
+   * @throws {BadRequestException} When the provider hides the email
+   * @throws {ConflictException} When the email belongs to another provider
+   */
   async validateOAuthUser(profile: any, provider: string) {
     const email = profile.emails?.[0]?.value;
     if (!email) {
@@ -155,6 +191,12 @@ export class AuthService {
     return user;
   }
 
+  /**
+   * Decrypts the stored provider token for third-party calls.
+   *
+   * @param userId Owner of the token
+   * @returns The plain token, or null when the user never linked OAuth
+   */
   async getOAuthToken(userId: string): Promise<string | null> {
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -177,10 +219,19 @@ export class AuthService {
     });
   }
 
+  /**
+   * Turns a JWT into the session user for guards.
+   *
+   * Any failure (bad signature, expired token, deleted user) becomes the
+   * same error, so callers learn nothing about which check failed. Only
+   * the fields guards need are loaded, never secrets.
+   *
+   * @param token Raw JWT from header or cookie
+   * @throws {UnauthorizedException} When the token is invalid or expired
+   */
   async verifyToken(token: string) {
     try {
       const decoded = this.jwtService.verify(token);
-      // console.log('\n\n\n\nDEBUG ======================', decoded);
       const user = await prisma.user.findUnique({
         where: { id: decoded.userId },
         select: {
@@ -204,6 +255,15 @@ export class AuthService {
     }
   }
 
+  /**
+   * Replaces the password after checking the current one.
+   *
+   * OAuth users have no local password, so the check fails for them: they
+   * keep signing in through their provider instead.
+   *
+   * @throws {NotFoundException} When the user does not exist
+   * @throws {BadRequestException} When the current password is wrong
+   */
   async changePassword(
     userId: string,
     currentPassword: string,
@@ -265,6 +325,12 @@ export class AuthService {
     return this.userService.update(id, { verified: true });
   }
 
+  /**
+   * Streams an upload buffer to Cloudinary and returns its URL.
+   *
+   * The callback API is wrapped in a promise that rejects on upload errors
+   * and on empty results, so callers only ever get a usable URL or a throw.
+   */
   async uploadImage(
     file: Express.Multer.File,
     folder: string = 'widget_platform',
@@ -285,6 +351,14 @@ export class AuthService {
     });
   }
 
+  /**
+   * Enforces the avatar rules: an image under 5MB.
+   *
+   * This runs after the Multer size cap on purpose: two independent checks
+   * mean one misconfigured layer cannot let huge files through.
+   *
+   * @throws {BadRequestException} When the file is missing, not an image, or too big
+   */
   checkFile(file: Express.Multer.File) {
     if (!file) {
       throw new BadRequestException('No file uploaded');

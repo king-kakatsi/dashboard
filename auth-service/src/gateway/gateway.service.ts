@@ -23,6 +23,13 @@ export class GatewayService {
   }
 
   // Forward request to connectors-service
+  /**
+   * Forwards one call to the connectors-service as this user.
+   *
+   * The user id travels in the X-User-Id header. Upstream errors keep their
+   * status code; a dead service becomes 503 so the client can tell the two
+   * apart and retry only the latter.
+   */
   private async forwardRequest<T>(
     method: 'get' | 'post' | 'put' | 'delete',
     path: string,

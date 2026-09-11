@@ -18,6 +18,13 @@ export class ConnectorsService {
   ) {}
 
   //create connector
+  /**
+   * Stores a new connector.
+   *
+   * A duplicate title, icon, or baseUrl surfaces as Conflict instead of a
+   * raw database error, so clients can tell "already exists" apart from
+   * "server broke".
+   */
   async create(createConnectorDto: CreateConnectorDto): Promise<any> {
     try {
       const createdConnector = new this.connectorModel(createConnectorDto);

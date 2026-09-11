@@ -51,6 +51,13 @@ export class WidgetsService {
   }
 
   // Update the position of a widget for a given user
+  /**
+   * Moves one user's widget on their board.
+   *
+   * Updates the stored position when the user already has one, otherwise
+   * appends a new entry. The user id must be a valid ObjectId: anything
+   * else fails inside the cast, not in this method.
+   */
   async updateUserPosition(
     widgetId: string,
     userId: string,
@@ -112,6 +119,18 @@ export class WidgetsService {
     return widget;
   }
 
+  /**
+   * Calls the third-party API behind a widget and wraps the answer.
+   *
+   * Joins the connector baseUrl with the widget endpoint plus caller params,
+   * with a 15-second timeout. Returns a success envelope carrying the data
+   * and widget identity.
+   *
+   * @param widgetId Widget whose connector holds the baseUrl
+   * @param additionalParams Extra query values, like a city or topic
+   * @throws {NotFoundException} When the widget or its connector is missing
+   * @throws {InternalServerErrorException} When the outside API fails or is slow
+   */
   async fetchWidgetData(
     widgetId: string,
     additionalParams: Record<string, any> = {},
